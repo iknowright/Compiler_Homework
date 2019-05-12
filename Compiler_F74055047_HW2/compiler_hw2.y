@@ -1,5 +1,7 @@
 /*	Definition section */
 %{
+#include <stdio.h>
+#include <stdlib.h>
 
 extern int yylineno;
 extern int yylex();
@@ -28,7 +30,7 @@ void dump_symbol();
 /* Token without return */
 %token PRINT
 %token IF ELSE WHILE
-%token ID SEMICOLON COMMA
+%token ID SEMICOLON COMMA QUOTA
 %token ADD SUB MUL DIV MOD INC DEC
 %token MT LT MTE LTE EQ NE
 %token ASGN ADDASGN SUBASGN MULASGN DIVASGN MODASGN
@@ -36,17 +38,17 @@ void dump_symbol();
 %token LB RB LCB RCB LSB RSB
 %token VOID FLOAT INT STRING BOOL
 %token RETURN
+%token TRUE FALSE
 %token CPP_COMMENT C_COMMENT
 
 /* Token with return, which need to sepcify type */
 %token <i_val> I_CONST
 %token <f_val> F_CONST
-%token <string> STRING
+%token <string> STR_CONST
 // code added
 
 
 /* Nonterminal with return, which need to sepcify type */
-%type <f_val> stat
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -55,33 +57,14 @@ void dump_symbol();
 %%
 
 program
-    : program stat 
+    : program stat { printf("here i am\n"); }
     |
 ;
 
 stat
-    : declaration
+    : INT { printf("INT\n"); }
 ;
 
-declaration
-    : type ID SEMICOLON
-;
-
-assignment_operator
-	: ASGN
-	| MULASGN
-	| DIVASGN
-	| MODASGN
-	| ADDASGN
-	| SUBASGN
-;
-
-type
-    : INT
-    | FLOAT
-    | VOID 
-    | STRING
-    | BOOL
 %%
 
 #include <stdio.h>

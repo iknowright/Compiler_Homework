@@ -1,15 +1,13 @@
-Nonterminals useless in grammar
-
-   assignment_operator
-
-
 Terminals unused in grammar
 
    PRINT
    IF
    ELSE
    WHILE
+   ID
+   SEMICOLON
    COMMA
+   QUOTA
    ADD
    SUB
    MUL
@@ -38,21 +36,18 @@ Terminals unused in grammar
    RCB
    LSB
    RSB
+   VOID
+   FLOAT
+   STRING
+   BOOL
    RETURN
+   TRUE
+   FALSE
    CPP_COMMENT
    C_COMMENT
    I_CONST
    F_CONST
-
-
-Rules useless in grammar
-
-   10 assignment_operator: ASGN
-   11                    | MULASGN
-   12                    | DIVASGN
-   13                    | MODASGN
-   14                    | ADDASGN
-   15                    | SUBASGN
+   STR_CONST
 
 
 Grammar
@@ -62,15 +57,7 @@ Grammar
     1 program: program stat
     2        | %empty
 
-    3 stat: declaration
-
-    4 declaration: type ID SEMICOLON
-
-    5 type: INT
-    6     | FLOAT
-    7     | VOID
-    8     | STRING
-    9     | BOOL
+    3 stat: INT
 
 
 Terminals, with rules where they appear
@@ -81,61 +68,61 @@ PRINT (258)
 IF (259)
 ELSE (260)
 WHILE (261)
-ID (262) 4
-SEMICOLON (263) 4
+ID (262)
+SEMICOLON (263)
 COMMA (264)
-ADD (265)
-SUB (266)
-MUL (267)
-DIV (268)
-MOD (269)
-INC (270)
-DEC (271)
-MT (272)
-LT (273)
-MTE (274)
-LTE (275)
-EQ (276)
-NE (277)
-ASGN (278)
-ADDASGN (279)
-SUBASGN (280)
-MULASGN (281)
-DIVASGN (282)
-MODASGN (283)
-AND (284)
-OR (285)
-NOT (286)
-LB (287)
-RB (288)
-LCB (289)
-RCB (290)
-LSB (291)
-RSB (292)
-VOID (293) 7
-FLOAT (294) 6
-INT (295) 5
-STRING <string> (296) 8
-BOOL (297) 9
-RETURN (298)
-CPP_COMMENT (299)
-C_COMMENT (300)
-I_CONST <i_val> (301)
-F_CONST <f_val> (302)
+QUOTA (265)
+ADD (266)
+SUB (267)
+MUL (268)
+DIV (269)
+MOD (270)
+INC (271)
+DEC (272)
+MT (273)
+LT (274)
+MTE (275)
+LTE (276)
+EQ (277)
+NE (278)
+ASGN (279)
+ADDASGN (280)
+SUBASGN (281)
+MULASGN (282)
+DIVASGN (283)
+MODASGN (284)
+AND (285)
+OR (286)
+NOT (287)
+LB (288)
+RB (289)
+LCB (290)
+RCB (291)
+LSB (292)
+RSB (293)
+VOID (294)
+FLOAT (295)
+INT (296) 3
+STRING (297)
+BOOL (298)
+RETURN (299)
+TRUE (300)
+FALSE (301)
+CPP_COMMENT (302)
+C_COMMENT (303)
+I_CONST <i_val> (304)
+F_CONST <f_val> (305)
+STR_CONST <string> (306)
 
 
 Nonterminals, with rules where they appear
 
-$accept (48)
+$accept (52)
     on left: 0
-program (49)
+program (53)
     on left: 1 2, on right: 0 1
-stat <f_val> (50)
+stat (54)
     on left: 3, on right: 1
-declaration (51)
-    on left: 4, on right: 3
-type (52)
-    on left: 5 6 7 8 9, on right: 4
 
 
 State 0
@@ -152,16 +139,10 @@ State 1
     0 $accept: program . $end
     1 program: program . stat
 
-    $end    shift, and go to state 2
-    VOID    shift, and go to state 3
-    FLOAT   shift, and go to state 4
-    INT     shift, and go to state 5
-    STRING  shift, and go to state 6
-    BOOL    shift, and go to state 7
+    $end  shift, and go to state 2
+    INT   shift, and go to state 3
 
-    stat         go to state 8
-    declaration  go to state 9
-    type         go to state 10
+    stat  go to state 4
 
 
 State 2
@@ -173,69 +154,13 @@ State 2
 
 State 3
 
-    7 type: VOID .
-
-    $default  reduce using rule 7 (type)
-
-
-State 4
-
-    6 type: FLOAT .
-
-    $default  reduce using rule 6 (type)
-
-
-State 5
-
-    5 type: INT .
-
-    $default  reduce using rule 5 (type)
-
-
-State 6
-
-    8 type: STRING .
-
-    $default  reduce using rule 8 (type)
-
-
-State 7
-
-    9 type: BOOL .
-
-    $default  reduce using rule 9 (type)
-
-
-State 8
-
-    1 program: program stat .
-
-    $default  reduce using rule 1 (program)
-
-
-State 9
-
-    3 stat: declaration .
+    3 stat: INT .
 
     $default  reduce using rule 3 (stat)
 
 
-State 10
+State 4
 
-    4 declaration: type . ID SEMICOLON
+    1 program: program stat .
 
-    ID  shift, and go to state 11
-
-
-State 11
-
-    4 declaration: type ID . SEMICOLON
-
-    SEMICOLON  shift, and go to state 12
-
-
-State 12
-
-    4 declaration: type ID SEMICOLON .
-
-    $default  reduce using rule 4 (declaration)
+    $default  reduce using rule 1 (program)
