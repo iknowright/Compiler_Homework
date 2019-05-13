@@ -63,12 +63,14 @@ program
 ;
 
 program_body
-    : function_declaration
+    : function_declaration { printf(" ( function_declaration )");}
+    | variable_declaration { printf(" ( variable_declaration )");}
     | function { printf(" ( function definition )\n"); }
 ;
 
 function
     : type ID LB parameter_list RB block_body
+;
 
 stats
     : stats stat
@@ -76,15 +78,48 @@ stats
 
 stat
     : while_statement { printf(" ( while_statement )\n"); }
+    | if_statement { printf(" ( if_statement )\n"); }
     | variable_declaration { printf(" ( variable_declaration )\n"); }
+    | printf_statement { printf(" ( printf_statement )\n"); }
+    | expression_statement { printf(" ( expression_statement )\n"); }
+    | function_call  { printf(" ( function_call )\n"); }
+    | return_statement { printf(" ( return_statement )\n"); }
 ;
 
-declaration
-    : function_declaration { printf(" (detected function)");}
+function_call
+    : ID LB argument_list RB SEMICOLON
+;
+
+argument_list
+    : assignment_expression
+    | argument_list COMMA assignment_expression
+    |
+;
+
+expression_statement
+    : assign_statement { printf(" ( assign_statement )\n"); }
+    | expression SEMICOLON { printf(" ( just_expression )\n"); }
+    | SEMICOLON { printf(" ( empty_statement )\n"); }
+;
+
+assign_statement
+    : ID assignment_operator expression SEMICOLON
+;
+
+return_statement
+    : RETURN expression SEMICOLON
+
+printf_statement
+    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON
+    | PRINT LB ID RB SEMICOLON
+;
+
+variable_declaration
+    : type ID ASGN assignment_expression SEMICOLON
 ;
 
 function_declaration
-    : type ID LB parameter_list RB SEMICOLON 
+    : type ID LB parameter_list RB SEMICOLON
 ;
 
 variable_declaration
@@ -95,12 +130,19 @@ while_statement
     : WHILE LB expression RB block_body
 ;
 
+if_statement
+	: IF LB expression RB block_body ELSE block_body
+    | IF LB expression RB block_body ELSE if_statement
+	| IF LB expression RB block_body
+;
+
 block_body
     : LCB stats RCB
 ;
 
 expression
-    :
+    : assignment_expression
+    |
 ;
 
 parameter_list
@@ -119,6 +161,98 @@ type
     | FLOAT { printf(" (FLOAT)"); }
     | BOOL { printf(" (BOOL)"); }
     | STRING { printf(" (STRING)"); }
+;
+
+assignment_expression
+    : unary_expression assignment_operator assignment_expression
+    | logical_or_expression
+;
+
+logical_or_expression
+    : logical_and_expression
+	| logical_or_expression OR logical_and_expression
+;
+
+logical_and_expression
+    : relational_expression
+	| logical_and_expression AND relational_expression
+;
+
+relational_expression
+    : additive_expression
+    | relational_expression relational_operator additive_expression 
+;
+
+additive_expression
+    : multiplicative_expression
+    | additive_expression ADD multiplicative_expression
+    | additive_expression SUB multiplicative_expression
+;
+
+multiplicative_expression
+    : unary_expression
+    | multiplicative_expression MUL unary_expression
+    | multiplicative_expression DIV unary_expression
+    | multiplicative_expression MOD unary_expression
+;
+
+relational_operator
+    : MT
+    | LT
+    | MTE
+    | LTE
+    | EQ
+    | NE
+;
+
+assignment_operator
+	: ASGN
+	| MULASGN
+	| DIVASGN
+	| MODASGN
+	| ADDASGN
+	| SUBASGN
+	;
+
+unary_expression
+    : postfix_expression
+	| INC unary_expression
+	| DEC unary_expression
+    | unary_operator unary_expression
+;
+
+unary_operator
+    : SUB
+    | ADD
+    | NOT
+;
+
+
+postfix_expression
+    : primary_expression
+    | postfix_expression INC
+	| postfix_expression DEC
+;
+
+primary_expression
+	: ID
+	| constant
+    | string
+	| LB expression RB
+	;
+;
+
+string
+    : QUOTA STR_CONST QUOTA
+;
+
+
+constant
+    : I_CONST
+    | F_CONST
+    | TRUE
+    | FALSE
+;
 
 %%
 
