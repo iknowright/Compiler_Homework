@@ -99,7 +99,7 @@ id			{letter}+({letter}|{digit})*
 <COMMENT>[^*\n]+	{ CONCAT; }
 <COMMENT>\n			{ CONCAT; printf("%d: %s \n", yylineno, buf); strcpy(buf,"");}
 <COMMENT>"*"		{ CONCAT;  }
-<COMMENT>"*/"		{  BEGIN INITIAL;CONCAT; }
+<COMMENT>"*/"		{  BEGIN INITIAL;CONCAT;}
 
  /* C++ type Comment */
 \/\/.*	{ CONCAT; }
@@ -110,7 +110,7 @@ id			{letter}+({letter}|{digit})*
  /* others */
 
 [;]         { CONCAT; printf(" SEMICOLON"); return(SEMICOLON); }
-[\n]        { CONCAT; printf("%d: %s", yylineno + 1, buf); strcpy(buf,""); }
+[\n]        { CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,""); }
 [ \t]		{ CONCAT; } /* Ignore */
 [^ \t\n] 	{ CONCAT; } /* Ignore other charactor sets */
 

@@ -1126,7 +1126,7 @@ YY_RULE_SETUP
 case 51:
 YY_RULE_SETUP
 #line 103 "compiler_hw2.l"
-{  BEGIN INITIAL;CONCAT; }
+{  BEGIN INITIAL;CONCAT;}
 	YY_BREAK
 /* C++ type Comment */
 case 52:
@@ -1150,7 +1150,7 @@ case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
 #line 114 "compiler_hw2.l"
-{ CONCAT; printf("%d: %s", yylineno + 1, buf); strcpy(buf,""); }
+{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,""); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
