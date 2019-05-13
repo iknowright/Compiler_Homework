@@ -50,6 +50,7 @@ void dump_symbol();
 
 /* Nonterminal with return, which need to sepcify type */
 
+
 /* Yacc will start at this nonterminal */
 %start program
 
@@ -57,13 +58,67 @@ void dump_symbol();
 %%
 
 program
-    : program stat { printf("here i am\n"); }
+    : program program_body { printf(" ( program_body )\n"); }
     |
 ;
 
-stat
-    : INT { printf("INT\n"); }
+program_body
+    : function_declaration
+    | function { printf(" ( function definition )\n"); }
 ;
+
+function
+    : type ID LB parameter_list RB block_body
+
+stats
+    : stats stat
+    |
+
+stat
+    : while_statement { printf(" ( while_statement )\n"); }
+    | variable_declaration { printf(" ( variable_declaration )\n"); }
+;
+
+declaration
+    : function_declaration { printf(" (detected function)");}
+;
+
+function_declaration
+    : type ID LB parameter_list RB SEMICOLON 
+;
+
+variable_declaration
+    : type ID SEMICOLON { printf(" (variable declared without initialization)");}
+    | type ID ASGN expression SEMICOLON { printf(" (variable declared with initialization)");}
+
+while_statement
+    : WHILE LB expression RB block_body
+;
+
+block_body
+    : LCB stats RCB
+;
+
+expression
+    :
+;
+
+parameter_list
+    : parameter
+    | parameter_list COMMA parameter
+    |
+;
+
+parameter
+    : type ID
+;
+
+type
+    : VOID { printf(" (VOID)"); }
+    | INT { printf(" (INT)"); }
+    | FLOAT { printf(" (FLOAT)"); }
+    | BOOL { printf(" (BOOL)"); }
+    | STRING { printf(" (STRING)"); }
 
 %%
 
@@ -75,7 +130,7 @@ int main(int argc, char** argv)
     yylineno = 0;
 
     yyparse();
-	printf("\nTotal lines: %d \n",yylineno);
+	printf("\nTotal lines: %d \n",yylineno+1);
 
     return 0;
 }
@@ -83,7 +138,7 @@ int main(int argc, char** argv)
 void yyerror(char *s)
 {
     printf("\n|-----------------------------------------------|\n");
-    printf("| Error found in line %d: %s\n", yylineno, buf);
+    printf("| Error found in line %d: %s\n", yylineno+1, buf);
     printf("| %s", s);
     printf("\n|-----------------------------------------------|\n\n");
 }

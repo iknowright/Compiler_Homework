@@ -25,93 +25,92 @@ id			{letter}+({letter}|{digit})*
 %%
 
  /* Arithmetic */
-"+"     { return(ADD); }
-"-" 	{ return(SUB); }
-"*" 	{ return(MUL); }
-"/" 	{ return(DIV); }
-"%"     { return(MOD); }
-"++"    { return(INC); }
-"--"    { return(DEC); }
+"+"     { printf(" ADD"); return(ADD); }
+"-" 	{ printf(" SUB"); return(SUB); }
+"*" 	{ printf(" MUL"); return(MUL); }
+"/" 	{ printf(" DIV"); return(DIV); }
+"%"     { printf(" MOD"); return(MOD); }
+"++"    { printf(" INC"); return(INC); }
+"--"    { printf(" DEC"); return(DEC); }
 
  /* Relational */
-">"		{ return(MT); }
-"<"		{ return(LT); }
-">="	{ return(MTE); }
-"<="	{ return(LTE); }
-"=="	{ return(EQ); }
-"!="	{ return(NE); }
+">"		{ printf(" MT"); return(MT); }
+"<"		{ printf(" LT"); return(LT); }
+">="	{ printf(" MTE"); return(MTE); }
+"<="	{ printf(" LTE"); return(LTE); }
+"=="	{ printf(" EQ"); return(EQ); }
+"!="	{ printf(" NE"); return(NE); }
 
  /* Assignment */
-"="		{ return(ASGN); }
-"+="	{ return(ADDASGN); }
-"-="	{ return(SUBASGN); }
-"*="	{ return(MULASGN); }
-"/="	{ return(DIVASGN); }
-"%="	{ return(MODASGN); }
+"="		{ printf(" ASGN"); return(ASGN); }
+"+="	{ printf(" ADDASGN"); return(ADDASGN); }
+"-="	{ printf(" SUBASGN"); return(SUBASGN); }
+"*="	{ printf(" MULASGN"); return(MULASGN); }
+"/="	{ printf(" DIVASGN"); return(DIVASGN); }
+"%="	{ printf(" MODASGN"); return(MODASGN); }
 
  /* Logical */
-"&&"	{ return(AND); }
-"||"	{ return(OR); }
-"!"		{ return(NOT); }
+"&&"	{ printf(" AND"); return(AND); }
+"||"	{ printf(" OR"); return(OR); }
+"!"		{ printf(" NOT"); return(NOT); }
 
  /* Delimiters */
-"("		{ return(LB); }
-")"		{ return(RB); }
-"{"		{ return(LCB); }
-"}"		{ return(RCB); }
-"["		{ return(LSB); }
-"]"		{ return(RSB); }
-","		{ return(COMMA); }
+"("		{ printf(" LB"); return(LB); }
+")"		{ printf(" RB"); return(RB); }
+"{"		{ printf(" LCB"); return(LCB); }
+"}"		{ printf(" RCB"); return(RCB); }
+"["		{ printf(" LSB"); return(LSB); }
+"]"		{ printf(" RSB"); return(RSB); }
+","		{ printf(" COMMA"); return(COMMA); }
 
  /* Print Keywords */	
-"print"		{ return(PRINT); }
+"print"		{ printf(" PRINT"); return(PRINT); }
 
  /* Condition and Loop Keywords */
-"if"		{ return(IF); }
-"else"		{ return(ELSE); }
-"while"		{ return(WHILE); }
+"if"		{ printf(" IF"); return(IF); }
+"else"		{ printf(" ELSE"); return(ELSE); }
+"while"		{ printf(" WHILE"); return(WHILE); }
 
  /* Declaration Keywords */
-"void"		{ return(VOID); }
-"int"		{ return(INT); }
-"float"  	{ return(FLOAT); }
-"string"  	{ return(STRING); }
-"bool"  	{ return(BOOL); }
+"void"		{ printf(" VOID"); return(VOID); }
+"int"		{ printf(" INT"); return(INT); }
+"float"  	{ printf(" FLOAT"); return(FLOAT); }
+"string"  	{ printf(" STRING"); return(STRING); }
+"bool"  	{ printf(" BOOL"); return(BOOL); }
 
  /* boolean Keywords */
-"true"      { return(TRUE); }
-"false"     { return(FALSE); }
-"return"    { return(RETURN); }
+"true"      { printf(" TRUE"); return(TRUE); }
+"false"     { printf(" FALSE"); return(FALSE); }
+"return"    { printf(" RETURN"); return(RETURN); }
 
  /* String Constant */
-\"				        { BEGIN STRING_STATE; return(QUOTA);}
-<STRING_STATE>\"		{ BEGIN INITIAL; return(QUOTA);}
-<STRING_STATE>[^"]*		{ return(STR_CONST); }
+\"				        { BEGIN STRING_STATE; printf(" QUOTA"); return(QUOTA);}
+<STRING_STATE>\"		{ BEGIN INITIAL; printf(" QUOTA"); return(QUOTA);}
+<STRING_STATE>[^"]*		{ printf(" STR_CONST"); return(STR_CONST); }
 
  /* Number Constant */
-{integer}	{ return(I_CONST); }
-{float}	    { return(F_CONST); }
+{integer}	{ printf(" I_CONST"); return(I_CONST); }
+{float}	    { printf(" F_CONST"); return(F_CONST); }
 
  /* C type Comment */
 "/*"				{ BEGIN COMMENT; }
 <COMMENT>[^*\n]+	{  }
 <COMMENT>\n			{  }
 <COMMENT>"*"		{  }
-<COMMENT>"*/"		{  BEGIN INITIAL; }
+<COMMENT>"*/"		{  BEGIN INITIAL; printf(" "); }
 
  /* C++ type Comment */
 \/\/.*	{ }
 
  /* Variable ID */
- {id}       { return(ID); }
+ {id}       { printf(" ID"); return(ID); }
 
  /* others */
 
-[;]         { }
-[\n]        { }
+[;]         { printf(" SEMICOLON"); return(SEMICOLON); }
+[\n]        { printf(" \n"); }
 [ \t]		{ } /* Ignore */
 [^ \t\n] 	{ } /* Ignore other charactor sets */
-<<EOF>>     { }
 
 %%
 
