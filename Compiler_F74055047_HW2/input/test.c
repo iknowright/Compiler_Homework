@@ -2,7 +2,7 @@
  * 2019 Spring Compiler Course Assignment 2 
  */
 
-float c = 1.5;
+int a = 5;
 
 bool loop(int n, int m) {
     while (n > m) {

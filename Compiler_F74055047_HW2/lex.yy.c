@@ -1061,12 +1061,12 @@ YY_RULE_SETUP
 case 39:
 YY_RULE_SETUP
 #line 85 "compiler_hw2.l"
-{ CONCAT; return(TRUE); }
+{ CONCAT; yylval.i_val = 1; return(TRUE); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 86 "compiler_hw2.l"
-{ CONCAT; return(FALSE); }
+{ CONCAT; yylval.i_val = 0; return(FALSE); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
@@ -1094,12 +1094,12 @@ YY_RULE_SETUP
 case 45:
 YY_RULE_SETUP
 #line 95 "compiler_hw2.l"
-{ CONCAT; return(I_CONST); }
+{ CONCAT; yylval.i_val = atoi(yytext); return(I_CONST); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 96 "compiler_hw2.l"
-{ CONCAT; return(F_CONST); }
+{ CONCAT; yylval.f_val = atof(yytext); return(F_CONST); }
 	YY_BREAK
 /* C type Comment */
 case 47:
@@ -1138,7 +1138,7 @@ YY_RULE_SETUP
 case 53:
 YY_RULE_SETUP
 #line 109 "compiler_hw2.l"
-{ CONCAT; return(ID); }
+{ CONCAT; yylval.string = strdup(yytext); return(ID); }
 	YY_BREAK
 /* others */
 case 54:

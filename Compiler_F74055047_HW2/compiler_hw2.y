@@ -3,6 +3,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef enum {
+    PARAMETER, FUNCTION, VARIABLE
+} kindEnum;
+
+typedef struct {
+    int index;
+    char * name;
+    kindEnum kind;
+    int type;
+    int scope;
+    char attribute[100];
+} Node;
+
+typedef struct {
+    Node * table[30];
+} ScopeNode;
+
+ScopeNode * scope_table[10] = {NULL};
+
+int scope;
+
 extern int yylineno;
 extern int yylex();
 extern char* yytext;   // Get current token from lex
@@ -30,7 +51,7 @@ void dump_symbol();
 /* Token without return */
 %token PRINT
 %token IF ELSE WHILE
-%token ID SEMICOLON COMMA QUOTA
+%token SEMICOLON COMMA QUOTA
 %token ADD SUB MUL DIV MOD INC DEC
 %token MT LT MTE LTE EQ NE
 %token ASGN ADDASGN SUBASGN MULASGN DIVASGN MODASGN
@@ -38,18 +59,20 @@ void dump_symbol();
 %token LB RB LCB RCB LSB RSB
 %token VOID FLOAT INT STRING BOOL
 %token RETURN
-%token TRUE FALSE
 %token CPP_COMMENT C_COMMENT
 
 /* Token with return, which need to sepcify type */
 %token <i_val> I_CONST
 %token <f_val> F_CONST
 %token <string> STR_CONST
+%token <i_val> TRUE
+%token <i_val> FALSE
+%token <string> ID
 // code added
 
 
 /* Nonterminal with return, which need to sepcify type */
-
+%type <i_val> type
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -57,7 +80,7 @@ void dump_symbol();
 /* Grammar section */
 %%
 
-program
+program 
     : program program_body { printf(" ( program_body )\n"); }
     |
 ;
@@ -69,7 +92,7 @@ program_body
 ;
 
 function
-    : type ID LB parameter_list RB block_body
+    : type ID LB parameter_list RB block_body { printf("( ID = %s )\n", $2); }
 ;
 
 stats
@@ -97,9 +120,9 @@ argument_list
 ;
 
 expression_statement
-    : assign_statement { printf(" ( assign_statement )\n"); }
-    | expression SEMICOLON { printf(" ( just_expression )\n"); }
-    | SEMICOLON { printf(" ( empty_statement )\n"); }
+    : assign_statement
+    | expression SEMICOLON
+    | SEMICOLON
 ;
 
 assign_statement
@@ -114,17 +137,13 @@ printf_statement
     | PRINT LB ID RB SEMICOLON
 ;
 
-variable_declaration
-    : type ID ASGN assignment_expression SEMICOLON
-;
-
 function_declaration
     : type ID LB parameter_list RB SEMICOLON
 ;
 
 variable_declaration
-    : type ID SEMICOLON { printf(" (variable declared without initialization)");}
-    | type ID ASGN expression SEMICOLON { printf(" (variable declared with initialization)");}
+    : type ID SEMICOLON
+    | type ID ASGN expression SEMICOLON
 
 while_statement
     : WHILE LB expression RB block_body
@@ -137,7 +156,15 @@ if_statement
 ;
 
 block_body
-    : LCB stats RCB
+    : left_brace stats right_brace
+;
+
+left_brace
+    : LCB { scope++; printf(" (----Scope Start---- %d)\n", scope); }
+;
+
+right_brace
+    : RCB { printf(" (----Scope End----)\n"); dump_symbol(); scope--; }
 ;
 
 expression
@@ -152,15 +179,15 @@ parameter_list
 ;
 
 parameter
-    : type ID
+    : type ID { printf("");}
 ;
 
 type
-    : VOID { }
-    | INT { }
-    | FLOAT { }
-    | BOOL { }
-    | STRING { }
+    : VOID { $$ = VOID; }
+    | INT { $$ = INT; }
+    | FLOAT { $$ = FLOAT; }
+    | BOOL { $$ = BOOL; }
+    | STRING { $$ = STRING; }
 ;
 
 assignment_expression
@@ -235,7 +262,7 @@ postfix_expression
 ;
 
 primary_expression
-	: ID
+	: ID { printf("( ID = %s )\n", yytext); }
 	| constant
     | string
 	| LB expression RB
@@ -248,21 +275,19 @@ string
 
 
 constant
-    : I_CONST
-    | F_CONST
-    | TRUE
-    | FALSE
+    : I_CONST { printf("%d\n", $1); }
+    | F_CONST { printf("%f\n", $1); }
+    | TRUE { printf("%d\n", $1); }
+    | FALSE { printf("%d\n", $1); }
 ;
 
 %%
-
-#include <stdio.h>
 
 /* C code section */
 int main(int argc, char** argv)
 {
     yylineno = 0;
-
+        
     yyparse();
 	printf("\nTotal lines: %d \n",yylineno);
 
@@ -271,16 +296,24 @@ int main(int argc, char** argv)
 
 void yyerror(char *s)
 {
-    printf(":%d %s\n", yylineno + 1, buf);
+    printf("%d: %s\n", yylineno + 1, buf);
     printf("\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
     printf("\n|-----------------------------------------------|\n\n");
 }
 
-void create_symbol() {}
-void insert_symbol() {}
-int lookup_symbol() {}
+void create_symbol()
+{
+
+}
+void insert_symbol()
+{
+
+}
+int lookup_symbol(int scope)
+{
+}
 void dump_symbol() {
     printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
            "Index", "Name", "Kind", "Type", "Scope", "Attribute");
