@@ -156,11 +156,11 @@ parameter
 ;
 
 type
-    : VOID { printf(" (VOID)"); }
-    | INT { printf(" (INT)"); }
-    | FLOAT { printf(" (FLOAT)"); }
-    | BOOL { printf(" (BOOL)"); }
-    | STRING { printf(" (STRING)"); }
+    : VOID { }
+    | INT { }
+    | FLOAT { }
+    | BOOL { }
+    | STRING { }
 ;
 
 assignment_expression
@@ -264,15 +264,16 @@ int main(int argc, char** argv)
     yylineno = 0;
 
     yyparse();
-	printf("\nTotal lines: %d \n",yylineno+1);
+	printf("\nTotal lines: %d \n",yylineno);
 
     return 0;
 }
 
 void yyerror(char *s)
 {
+    printf(":%d %s\n", yylineno + 1, buf);
     printf("\n|-----------------------------------------------|\n");
-    printf("| Error found in line %d: %s\n", yylineno, buf);
+    printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
     printf("\n|-----------------------------------------------|\n\n");
 }

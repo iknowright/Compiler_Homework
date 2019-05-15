@@ -1541,31 +1541,31 @@ yyreduce:
 
   case 43:
 #line 159 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" (VOID)"); }
+    { }
 #line 1546 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 44:
 #line 160 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" (INT)"); }
+    { }
 #line 1552 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 45:
 #line 161 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" (FLOAT)"); }
+    { }
 #line 1558 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 46:
 #line 162 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" (BOOL)"); }
+    { }
 #line 1564 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 47:
 #line 163 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" (STRING)"); }
+    { }
 #line 1570 "y.tab.c" /* yacc.c:1652  */
     break;
 
@@ -1812,15 +1812,16 @@ int main(int argc, char** argv)
     yylineno = 0;
 
     yyparse();
-	printf("\nTotal lines: %d \n",yylineno+1);
+	printf("\nTotal lines: %d \n",yylineno);
 
     return 0;
 }
 
 void yyerror(char *s)
 {
+    printf(":%d %s\n", yylineno + 1, buf);
     printf("\n|-----------------------------------------------|\n");
-    printf("| Error found in line %d: %s\n", yylineno, buf);
+    printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
     printf("\n|-----------------------------------------------|\n\n");
 }

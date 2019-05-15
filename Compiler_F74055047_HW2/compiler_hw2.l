@@ -27,77 +27,77 @@ id			{letter}+({letter}|{digit})*
 %%
 
  /* Arithmetic */
-"+"     { CONCAT; printf(" ADD"); return(ADD); }
-"-" 	{ CONCAT; printf(" SUB"); return(SUB); }
-"*" 	{ CONCAT; printf(" MUL"); return(MUL); }
-"/" 	{ CONCAT; printf(" DIV"); return(DIV); }
-"%"     { CONCAT; printf(" MOD"); return(MOD); }
-"++"    { CONCAT; printf(" INC"); return(INC); }
-"--"    { CONCAT; printf(" DEC"); return(DEC); }
+"+"     { CONCAT; return(ADD); }
+"-" 	{ CONCAT; return(SUB); }
+"*" 	{ CONCAT; return(MUL); }
+"/" 	{ CONCAT; return(DIV); }
+"%"     { CONCAT; return(MOD); }
+"++"    { CONCAT; return(INC); }
+"--"    { CONCAT; return(DEC); }
 
  /* Relational */
-">"		{ CONCAT; printf(" MT"); return(MT); }
-"<"		{ CONCAT; printf(" LT"); return(LT); }
-">="	{ CONCAT; printf(" MTE"); return(MTE); }
-"<="	{ CONCAT; printf(" LTE"); return(LTE); }
-"=="	{ CONCAT; printf(" EQ"); return(EQ); }
-"!="	{ CONCAT; printf(" NE"); return(NE); }
+">"		{ CONCAT; return(MT); }
+"<"		{ CONCAT; return(LT); }
+">="	{ CONCAT; return(MTE); }
+"<="	{ CONCAT; return(LTE); }
+"=="	{ CONCAT; return(EQ); }
+"!="	{ CONCAT; return(NE); }
 
  /* Assignment */
-"="		{ CONCAT; printf(" ASGN"); return(ASGN); }
-"+="	{ CONCAT; printf(" ADDASGN"); return(ADDASGN); }
-"-="	{ CONCAT; printf(" SUBASGN"); return(SUBASGN); }
-"*="	{ CONCAT; printf(" MULASGN"); return(MULASGN); }
-"/="	{ CONCAT; printf(" DIVASGN"); return(DIVASGN); }
-"%="	{ CONCAT; printf(" MODASGN"); return(MODASGN); }
+"="		{ CONCAT; return(ASGN); }
+"+="	{ CONCAT; return(ADDASGN); }
+"-="	{ CONCAT; return(SUBASGN); }
+"*="	{ CONCAT; return(MULASGN); }
+"/="	{ CONCAT; return(DIVASGN); }
+"%="	{ CONCAT; return(MODASGN); }
 
  /* Logical */
-"&&"	{ CONCAT; printf(" AND"); return(AND); }
-"||"	{ CONCAT; printf(" OR"); return(OR); }
-"!"		{ CONCAT; printf(" NOT"); return(NOT); }
+"&&"	{ CONCAT; return(AND); }
+"||"	{ CONCAT; return(OR); }
+"!"		{ CONCAT; return(NOT); }
 
  /* Delimiters */
-"("		{ CONCAT; printf(" LB"); return(LB); }
-")"		{ CONCAT; printf(" RB"); return(RB); }
-"{"		{ CONCAT; printf(" LCB"); return(LCB); }
-"}"		{ CONCAT; printf(" RCB"); return(RCB); }
-"["		{ CONCAT; printf(" LSB"); return(LSB); }
-"]"		{ CONCAT; printf(" RSB"); return(RSB); }
-","		{ CONCAT; printf(" COMMA"); return(COMMA); }
+"("		{ CONCAT; return(LB); }
+")"		{ CONCAT; return(RB); }
+"{"		{ CONCAT; return(LCB); }
+"}"		{ CONCAT; return(RCB); }
+"["		{ CONCAT; return(LSB); }
+"]"		{ CONCAT; return(RSB); }
+","		{ CONCAT; return(COMMA); }
 
  /* Print Keywords */	
-"print"		{ CONCAT; printf(" PRINT"); return(PRINT); }
+"print"		{ CONCAT; return(PRINT); }
 
  /* Condition and Loop Keywords */
-"if"		{ CONCAT; printf(" IF"); return(IF); }
-"else"		{ CONCAT; printf(" ELSE"); return(ELSE); }
-"while"		{ CONCAT; printf(" WHILE"); return(WHILE); }
+"if"		{ CONCAT; return(IF); }
+"else"		{ CONCAT; return(ELSE); }
+"while"		{ CONCAT; return(WHILE); }
 
  /* Declaration Keywords */
-"void"		{ CONCAT; printf(" VOID"); return(VOID); }
-"int"		{ CONCAT; printf(" INT"); return(INT); }
-"float"  	{ CONCAT; printf(" FLOAT"); return(FLOAT); }
-"string"  	{ CONCAT; printf(" STRING"); return(STRING); }
-"bool"  	{ CONCAT; printf(" BOOL"); return(BOOL); }
+"void"		{ CONCAT; return(VOID); }
+"int"		{ CONCAT; return(INT); }
+"float"  	{ CONCAT; return(FLOAT); }
+"string"  	{ CONCAT; return(STRING); }
+"bool"  	{ CONCAT; return(BOOL); }
 
  /* boolean Keywords */
-"true"      { CONCAT; printf(" TRUE"); return(TRUE); }
-"false"     { CONCAT; printf(" FALSE"); return(FALSE); }
-"return"    { CONCAT; printf(" RETURN"); return(RETURN); }
+"true"      { CONCAT; return(TRUE); }
+"false"     { CONCAT; return(FALSE); }
+"return"    { CONCAT; return(RETURN); }
 
  /* String Constant */
-\"				        { BEGIN STRING_STATE; CONCAT; printf(" QUOTA"); return(QUOTA);}
-<STRING_STATE>\"		{ BEGIN INITIAL; CONCAT; printf(" QUOTA"); return(QUOTA);}
-<STRING_STATE>[^"]*		{ CONCAT; printf(" STR_CONST"); return(STR_CONST); }
+\"				        { BEGIN STRING_STATE; CONCAT; return(QUOTA);}
+<STRING_STATE>\"		{ BEGIN INITIAL; CONCAT; return(QUOTA);}
+<STRING_STATE>[^"]*		{ CONCAT; return(STR_CONST); }
 
  /* Number Constant */
-{integer}	{ CONCAT; printf(" I_CONST"); return(I_CONST); }
-{float}	    { CONCAT; printf(" F_CONST"); return(F_CONST); }
+{integer}	{ CONCAT; return(I_CONST); }
+{float}	    { CONCAT; return(F_CONST); }
 
  /* C type Comment */
 "/*"				{ BEGIN COMMENT; CONCAT; }
 <COMMENT>[^*\n]+	{ CONCAT; }
-<COMMENT>\n			{ CONCAT; printf("%d: %s \n", yylineno, buf); strcpy(buf,"");}
+<COMMENT>\n			{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");}
 <COMMENT>"*"		{ CONCAT;  }
 <COMMENT>"*/"		{  BEGIN INITIAL;CONCAT;}
 
@@ -105,11 +105,11 @@ id			{letter}+({letter}|{digit})*
 \/\/.*	{ CONCAT; }
 
  /* Variable ID */
- {id}       { CONCAT; printf(" ID"); return(ID); }
+ {id}       { CONCAT; return(ID); }
 
  /* others */
 
-[;]         { CONCAT; printf(" SEMICOLON"); return(SEMICOLON); }
+[;]         { CONCAT; return(SEMICOLON); }
 [\n]        { CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,""); }
 [ \t]		{ CONCAT; } /* Ignore */
 [^ \t\n] 	{ CONCAT; } /* Ignore other charactor sets */

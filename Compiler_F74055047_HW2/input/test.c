@@ -15,7 +15,7 @@ int main() {
     // Declaration
     int x;
     int i;
-    int a = 5;
+    int a = (5 > b) + (b + 3);
     string y = "She is a girl";
 
     print(y); // print
@@ -24,9 +24,13 @@ int main() {
     if (a > 10) {
         x += a;
         print(x);
-    } else {
+    } else if (a == 10){
         x = a % 10 + 10 * 7; /* Arithmetic */
         print(x);
+        if (1) {
+            x += a;
+            print(x);
+        }
     }
     loop(x, i);
     print("Hello World");
