@@ -23,6 +23,7 @@ Node * table[100] = { NULL };
 
 int scope_index[100];
 
+char attribute[100] = "";
 
 extern int yylineno;
 extern int yylex();
@@ -91,7 +92,12 @@ program_body
 ;
 
 function
-    : type ID LB parameter_list RB block_body
+    : type ID LB parameter_list RB block_body { 
+            printf("\n%s scope %d\n", attribute, scope);
+            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute);
+            strcpy(attribute, "");
+            scope_index[scope]++;
+        }
 ;
 
 stats
@@ -141,8 +147,16 @@ function_declaration
 ;
 
 variable_declaration
-    : type ID SEMICOLON
-    | type ID ASGN expression SEMICOLON
+    : type ID SEMICOLON {
+            insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
+            strcpy(attribute, "");
+            scope_index[scope]++;
+        }
+    | type ID ASGN expression SEMICOLON {
+            insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
+            strcpy(attribute, "");
+            scope_index[scope]++;
+        }
 
 while_statement
     : WHILE LB expression RB block_body
@@ -172,7 +186,7 @@ expression
 ;
 
 parameter_list
-    : parameter
+    : parameter 
     | parameter_list COMMA parameter
     |
 ;
@@ -181,6 +195,45 @@ parameter
     : type ID { 
         printf(" (----%d %s scope-%d----)\n", $1, $2, scope+1);
         insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
+        if(scope_index[scope+1] == 0) {
+            switch($1) {
+                case VOID:
+                    strcat(attribute, "void");
+                    break;
+                case FLOAT:
+                    strcat(attribute, "float");
+                    break;
+                case INT:
+                    strcat(attribute, "int");
+                    break;
+                case STRING:
+                    strcat(attribute, "string");
+                    break;
+                case BOOL:
+                    strcat(attribute, "bool");
+                    break;
+                default: break;
+            }
+        } else {
+            switch($1) {
+                case VOID:
+                    strcat(attribute, ", void");
+                    break;
+                case FLOAT:
+                    strcat(attribute, ", float");
+                    break;
+                case INT:
+                    strcat(attribute, ", int");
+                    break;
+                case STRING:
+                    strcat(attribute, ", string");
+                    break;
+                case BOOL:
+                    strcat(attribute, ", bool");
+                    break;
+                default: break;
+            }
+        }
         scope_index[scope+1]++;
     }
 ;
@@ -292,6 +345,7 @@ int main(int argc, char** argv)
     yylineno = 0;
         
     yyparse();
+    dump_symbol(0);
 	printf("\nTotal lines: %d \n",yylineno);
 
     return 0;
@@ -315,7 +369,7 @@ void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int t
     new_node->kind = kind;
     new_node->type = type;
     new_node->scope = scope;
-    new_node->attribute = attribute;
+    new_node->attribute = strdup(attribute);
     new_node->next = NULL; 
   
     if (*head_ref == NULL) 
@@ -353,4 +407,5 @@ void dump_symbol(int scope) {
         tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
     free(tmp);
     table[scope] = NULL;
+    scope_index[scope] = 0;
 }

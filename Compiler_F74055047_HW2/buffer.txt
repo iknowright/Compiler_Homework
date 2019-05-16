@@ -30,3 +30,23 @@ char kind[100];
                 break;
             default: break;
         }
+
+
+ switch($1) {
+                case VOID:
+                    strcat(attribute, "void");
+                    break;
+                case FLOAT:
+                    strcat(attribute, "float");
+                    break;
+                case INT:
+                    strcat(attribute, "int");
+                    break;
+                case STRING:
+                    strcat(attribute, "string");
+                    break;
+                case BOOL:
+                    strcat(attribute, "bool");
+                    break;
+                default: break;
+            }
