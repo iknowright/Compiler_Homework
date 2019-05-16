@@ -114,13 +114,19 @@ id			{letter}+({letter}|{digit})*
  /* others */
 
 [;]         { CONCAT; return(SEMICOLON); }
-[\n]        { CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");
+[\n]        { 
+                CONCAT;
+                if(strlen(buf) == 1) {
+                    printf("%d:\n", yylineno);
+                } else {
+                    printf("%d: %s", yylineno, buf);
+                }
+                strcpy(buf,"");
                 if(dump_flag) {
-                    printf("scope for dump %d\n", scope+1);
                     dump_symbol(scope+1);
                     dump_flag = 0;
                 }
-}
+            }
 [ \t]		{ CONCAT; } /* Ignore */
 [^ \t\n] 	{ CONCAT; } /* Ignore other charactor sets */
 

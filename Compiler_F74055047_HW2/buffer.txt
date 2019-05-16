@@ -50,3 +50,5 @@ char kind[100];
                     break;
                 default: break;
             }
+
+            diff -u <(./myparser < input/zero_error.c) output/zero_error.out

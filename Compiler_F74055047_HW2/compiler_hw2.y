@@ -32,6 +32,7 @@ extern char buf[256];  // Get current code line from lex
 
 /* Symbol table function - you can add new function if needed. */
 void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute);
+void enum_to_string(char * stringkind, char * stringtype, int kind, int type);
 void dump_symbol(int scope);
 int lookup_symbol(int scope);
 
@@ -93,7 +94,6 @@ program_body
 
 function
     : type ID LB parameter_list RB block_body { 
-            printf("\n%s scope %d\n", attribute, scope);
             insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute);
             strcpy(attribute, "");
             scope_index[scope]++;
@@ -173,11 +173,11 @@ block_body
 ;
 
 left_brace
-    : LCB { scope++; printf(" (----Scope Start---- %d)\n", scope);}
+    : LCB { scope++; }
 ;
 
 right_brace
-    : RCB { printf(" (----Scope End---- %d)\n", scope); dump_flag = 1; scope--; }
+    : RCB { dump_flag = 1; scope--; }
 ;
 
 expression
@@ -193,7 +193,6 @@ parameter_list
 
 parameter
     : type ID { 
-        printf(" (----%d %s scope-%d----)\n", $1, $2, scope+1);
         insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
         if(scope_index[scope+1] == 0) {
             switch($1) {
@@ -318,7 +317,7 @@ postfix_expression
 ;
 
 primary_expression
-	: ID { printf("( ID = %s )\n", yytext); }
+	: ID
 	| constant
     | string
 	| LB expression RB
@@ -360,6 +359,15 @@ void yyerror(char *s)
     printf("\n|-----------------------------------------------|\n\n");
 }
 
+void custom_yyerror(char *s)
+{
+    printf("%d: %s\n", yylineno + 1, buf);
+    printf("\n|-----------------------------------------------|\n");
+    printf("| Error found in line %d: %s\n", yylineno + 1, buf);
+    printf("| %s", s);
+    printf("\n|-----------------------------------------------|\n\n");
+}
+
 void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute)
 {
     Node *last = *head_ref;
@@ -390,7 +398,43 @@ int lookup_symbol(int scope)
 
 }
 
+void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
+{
+    switch(kind) {
+        case PARAMETER:
+            strcpy(stringkind, "parameter");
+            break;
+        case FUNCTION:
+            strcpy(stringkind, "function");
+            break;
+        case VARIABLE:          
+            strcpy(stringkind, "variable");
+            break;
+        default: break;
+    }
+    switch(type) {
+        case VOID:
+            strcpy(stringtype, "void");
+            break;
+        case FLOAT:
+            strcpy(stringtype, "float");
+            break;
+        case INT:
+            strcpy(stringtype, "int");
+            break;
+        case STRING:
+            strcpy(stringtype, "string");
+            break;
+        case BOOL:
+            strcpy(stringtype, "bool");
+            break;
+        default: break;
+    }
+}
+
 void dump_symbol(int scope) {
+    char stringkind[100];
+    char stringtype[100];
     if(table[scope] == NULL) {
         return;
     }
@@ -398,13 +442,15 @@ void dump_symbol(int scope) {
            "Index", "Name", "Kind", "Type", "Scope", "Attribute");
     Node * tmp = table[scope];
     while(tmp->next != NULL) {
-        printf("%-10d%-10s%-12d%-10d%-10d%-10s\n",
-           tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
+        enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
+        printf("%-10d%-10s%-12s%-10s%-10d%-s\n",
+           tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
         free(tmp);
         tmp = tmp->next;
     }
-    printf("%-10d%-10s%-12d%-10d%-10d%-10s\n\n",
-        tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
+    enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
+    printf("%-10d%-10s%-12s%-10s%-10d%-s\n\n",
+        tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
     free(tmp);
     table[scope] = NULL;
     scope_index[scope] = 0;

@@ -1154,30 +1154,36 @@ case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
 #line 118 "compiler_hw2.l"
-{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");
+{ 
+                CONCAT;
+                if(strlen(buf) == 1) {
+                    printf("%d:\n", yylineno);
+                } else {
+                    printf("%d: %s", yylineno, buf);
+                }
+                strcpy(buf,"");
                 if(dump_flag) {
-                    printf("scope for dump %d\n", scope+1);
                     dump_symbol(scope+1);
                     dump_flag = 0;
                 }
-}
+            }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 125 "compiler_hw2.l"
+#line 131 "compiler_hw2.l"
 { CONCAT; } /* Ignore */
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 126 "compiler_hw2.l"
+#line 132 "compiler_hw2.l"
 { CONCAT; } /* Ignore other charactor sets */
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 128 "compiler_hw2.l"
+#line 134 "compiler_hw2.l"
 ECHO;
 	YY_BREAK
-#line 1180 "lex.yy.c"
+#line 1186 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(STRING_STATE):
@@ -2196,7 +2202,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 128 "compiler_hw2.l"
+#line 134 "compiler_hw2.l"
 
 
 int yywrap()
