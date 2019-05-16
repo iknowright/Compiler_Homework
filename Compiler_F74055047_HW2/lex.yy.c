@@ -563,13 +563,16 @@ char *yytext;
 extern YYSTYPE yylval; //YYSTYPE
 char buf[BUF_SIZE];
 
+int dump_flag = 0;
+extern void dump_symbol();
+
 /* This macro is used to record code line */
 #define CONCAT strncat(buf, yytext, BUF_SIZE - strlen(buf) - 1)
-#line 568 "lex.yy.c"
+#line 571 "lex.yy.c"
 /* Define regular expression label */
 
 /* Rules section */
-#line 572 "lex.yy.c"
+#line 575 "lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -788,12 +791,12 @@ YY_DECL
 		}
 
 	{
-#line 27 "compiler_hw2.l"
-
-
 #line 30 "compiler_hw2.l"
+
+
+#line 33 "compiler_hw2.l"
  /* Arithmetic */
-#line 796 "lex.yy.c"
+#line 799 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -862,312 +865,317 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 31 "compiler_hw2.l"
+#line 34 "compiler_hw2.l"
 { CONCAT; return(ADD); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 32 "compiler_hw2.l"
+#line 35 "compiler_hw2.l"
 { CONCAT; return(SUB); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 33 "compiler_hw2.l"
+#line 36 "compiler_hw2.l"
 { CONCAT; return(MUL); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 34 "compiler_hw2.l"
+#line 37 "compiler_hw2.l"
 { CONCAT; return(DIV); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 35 "compiler_hw2.l"
+#line 38 "compiler_hw2.l"
 { CONCAT; return(MOD); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 36 "compiler_hw2.l"
+#line 39 "compiler_hw2.l"
 { CONCAT; return(INC); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 37 "compiler_hw2.l"
+#line 40 "compiler_hw2.l"
 { CONCAT; return(DEC); }
 	YY_BREAK
 /* Relational */
 case 8:
 YY_RULE_SETUP
-#line 40 "compiler_hw2.l"
+#line 43 "compiler_hw2.l"
 { CONCAT; return(MT); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 41 "compiler_hw2.l"
+#line 44 "compiler_hw2.l"
 { CONCAT; return(LT); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 42 "compiler_hw2.l"
+#line 45 "compiler_hw2.l"
 { CONCAT; return(MTE); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 43 "compiler_hw2.l"
+#line 46 "compiler_hw2.l"
 { CONCAT; return(LTE); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 44 "compiler_hw2.l"
+#line 47 "compiler_hw2.l"
 { CONCAT; return(EQ); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 45 "compiler_hw2.l"
+#line 48 "compiler_hw2.l"
 { CONCAT; return(NE); }
 	YY_BREAK
 /* Assignment */
 case 14:
 YY_RULE_SETUP
-#line 48 "compiler_hw2.l"
+#line 51 "compiler_hw2.l"
 { CONCAT; return(ASGN); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 49 "compiler_hw2.l"
+#line 52 "compiler_hw2.l"
 { CONCAT; return(ADDASGN); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 50 "compiler_hw2.l"
+#line 53 "compiler_hw2.l"
 { CONCAT; return(SUBASGN); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 51 "compiler_hw2.l"
+#line 54 "compiler_hw2.l"
 { CONCAT; return(MULASGN); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 52 "compiler_hw2.l"
+#line 55 "compiler_hw2.l"
 { CONCAT; return(DIVASGN); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 53 "compiler_hw2.l"
+#line 56 "compiler_hw2.l"
 { CONCAT; return(MODASGN); }
 	YY_BREAK
 /* Logical */
 case 20:
 YY_RULE_SETUP
-#line 56 "compiler_hw2.l"
+#line 59 "compiler_hw2.l"
 { CONCAT; return(AND); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 57 "compiler_hw2.l"
+#line 60 "compiler_hw2.l"
 { CONCAT; return(OR); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 58 "compiler_hw2.l"
+#line 61 "compiler_hw2.l"
 { CONCAT; return(NOT); }
 	YY_BREAK
 /* Delimiters */
 case 23:
 YY_RULE_SETUP
-#line 61 "compiler_hw2.l"
+#line 64 "compiler_hw2.l"
 { CONCAT; return(LB); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 62 "compiler_hw2.l"
+#line 65 "compiler_hw2.l"
 { CONCAT; return(RB); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 63 "compiler_hw2.l"
+#line 66 "compiler_hw2.l"
 { CONCAT; return(LCB); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 64 "compiler_hw2.l"
+#line 67 "compiler_hw2.l"
 { CONCAT; return(RCB); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 65 "compiler_hw2.l"
+#line 68 "compiler_hw2.l"
 { CONCAT; return(LSB); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 66 "compiler_hw2.l"
+#line 69 "compiler_hw2.l"
 { CONCAT; return(RSB); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 67 "compiler_hw2.l"
+#line 70 "compiler_hw2.l"
 { CONCAT; return(COMMA); }
 	YY_BREAK
 /* Print Keywords */	
 case 30:
 YY_RULE_SETUP
-#line 70 "compiler_hw2.l"
+#line 73 "compiler_hw2.l"
 { CONCAT; return(PRINT); }
 	YY_BREAK
 /* Condition and Loop Keywords */
 case 31:
 YY_RULE_SETUP
-#line 73 "compiler_hw2.l"
+#line 76 "compiler_hw2.l"
 { CONCAT; return(IF); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 74 "compiler_hw2.l"
+#line 77 "compiler_hw2.l"
 { CONCAT; return(ELSE); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 75 "compiler_hw2.l"
+#line 78 "compiler_hw2.l"
 { CONCAT; return(WHILE); }
 	YY_BREAK
 /* Declaration Keywords */
 case 34:
 YY_RULE_SETUP
-#line 78 "compiler_hw2.l"
+#line 81 "compiler_hw2.l"
 { CONCAT; return(VOID); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 79 "compiler_hw2.l"
+#line 82 "compiler_hw2.l"
 { CONCAT; return(INT); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 80 "compiler_hw2.l"
+#line 83 "compiler_hw2.l"
 { CONCAT; return(FLOAT); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 81 "compiler_hw2.l"
+#line 84 "compiler_hw2.l"
 { CONCAT; return(STRING); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 82 "compiler_hw2.l"
+#line 85 "compiler_hw2.l"
 { CONCAT; return(BOOL); }
 	YY_BREAK
 /* boolean Keywords */
 case 39:
 YY_RULE_SETUP
-#line 85 "compiler_hw2.l"
+#line 88 "compiler_hw2.l"
 { CONCAT; yylval.i_val = 1; return(TRUE); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 86 "compiler_hw2.l"
+#line 89 "compiler_hw2.l"
 { CONCAT; yylval.i_val = 0; return(FALSE); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 87 "compiler_hw2.l"
+#line 90 "compiler_hw2.l"
 { CONCAT; return(RETURN); }
 	YY_BREAK
 /* String Constant */
 case 42:
 YY_RULE_SETUP
-#line 90 "compiler_hw2.l"
+#line 93 "compiler_hw2.l"
 { BEGIN STRING_STATE; CONCAT; return(QUOTA);}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 91 "compiler_hw2.l"
+#line 94 "compiler_hw2.l"
 { BEGIN INITIAL; CONCAT; return(QUOTA);}
 	YY_BREAK
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 92 "compiler_hw2.l"
+#line 95 "compiler_hw2.l"
 { CONCAT; return(STR_CONST); }
 	YY_BREAK
 /* Number Constant */
 case 45:
 YY_RULE_SETUP
-#line 95 "compiler_hw2.l"
+#line 98 "compiler_hw2.l"
 { CONCAT; yylval.i_val = atoi(yytext); return(I_CONST); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 96 "compiler_hw2.l"
+#line 99 "compiler_hw2.l"
 { CONCAT; yylval.f_val = atof(yytext); return(F_CONST); }
 	YY_BREAK
 /* C type Comment */
 case 47:
 YY_RULE_SETUP
-#line 99 "compiler_hw2.l"
+#line 102 "compiler_hw2.l"
 { BEGIN COMMENT; CONCAT; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 100 "compiler_hw2.l"
+#line 103 "compiler_hw2.l"
 { CONCAT; }
 	YY_BREAK
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 101 "compiler_hw2.l"
+#line 104 "compiler_hw2.l"
 { CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 102 "compiler_hw2.l"
+#line 105 "compiler_hw2.l"
 { CONCAT;  }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 103 "compiler_hw2.l"
+#line 106 "compiler_hw2.l"
 {  BEGIN INITIAL;CONCAT;}
 	YY_BREAK
 /* C++ type Comment */
 case 52:
 YY_RULE_SETUP
-#line 106 "compiler_hw2.l"
+#line 109 "compiler_hw2.l"
 { CONCAT; }
 	YY_BREAK
 /* Variable ID */
 case 53:
 YY_RULE_SETUP
-#line 109 "compiler_hw2.l"
+#line 112 "compiler_hw2.l"
 { CONCAT; yylval.string = strdup(yytext); return(ID); }
 	YY_BREAK
 /* others */
 case 54:
 YY_RULE_SETUP
-#line 113 "compiler_hw2.l"
+#line 116 "compiler_hw2.l"
 { CONCAT; return(SEMICOLON); }
 	YY_BREAK
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 114 "compiler_hw2.l"
-{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,""); }
+#line 117 "compiler_hw2.l"
+{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");
+                if(dump_flag) {
+                    dump_symbol();
+                    dump_flag = 0;
+                }
+}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 115 "compiler_hw2.l"
+#line 123 "compiler_hw2.l"
 { CONCAT; } /* Ignore */
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 116 "compiler_hw2.l"
+#line 124 "compiler_hw2.l"
 { CONCAT; } /* Ignore other charactor sets */
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 118 "compiler_hw2.l"
+#line 126 "compiler_hw2.l"
 ECHO;
 	YY_BREAK
-#line 1170 "lex.yy.c"
+#line 1178 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(STRING_STATE):
@@ -2186,7 +2194,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 118 "compiler_hw2.l"
+#line 126 "compiler_hw2.l"
 
 
 int yywrap()
