@@ -9,7 +9,8 @@ extern YYSTYPE yylval; //YYSTYPE
 char buf[BUF_SIZE];
 
 int dump_flag = 0;
-extern void dump_symbol();
+extern void dump_symbol(int scope);
+extern int scope;
 
 /* This macro is used to record code line */
 #define CONCAT strncat(buf, yytext, BUF_SIZE - strlen(buf) - 1)
@@ -115,7 +116,8 @@ id			{letter}+({letter}|{digit})*
 [;]         { CONCAT; return(SEMICOLON); }
 [\n]        { CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");
                 if(dump_flag) {
-                    dump_symbol();
+                    printf("scope for dump %d\n", scope+1);
+                    dump_symbol(scope+1);
                     dump_flag = 0;
                 }
 }

@@ -70,7 +70,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 typedef enum {
     PARAMETER, FUNCTION, VARIABLE
 } kindEnum;
@@ -87,7 +87,7 @@ typedef struct Node {
 
 int scope;
 
-Node * table[100];
+Node * table[100] = { NULL };
 
 int scope_index[100];
 
@@ -98,15 +98,14 @@ extern char* yytext;   // Get current token from lex
 extern char buf[256];  // Get current code line from lex
 
 /* Symbol table function - you can add new function if needed. */
-Node* create_symbol(int index, char * name, kindEnum kind, int type, int scope, char * attribute);
-void insert_symbol(Node** head_ref, Node * new_node);
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute);
 void dump_symbol(int scope);
 int lookup_symbol(int scope);
 
 extern int dump_flag;
 
 
-#line 110 "y.tab.c" /* yacc.c:337  */
+#line 109 "y.tab.c" /* yacc.c:337  */
 # ifndef YY_NULLPTR
 #  if defined __cplusplus
 #   if 201103L <= __cplusplus
@@ -251,13 +250,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 45 "compiler_hw2.y" /* yacc.c:352  */
+#line 44 "compiler_hw2.y" /* yacc.c:352  */
 
     int i_val;
     double f_val;
     char* string;
 
-#line 261 "y.tab.c" /* yacc.c:352  */
+#line 260 "y.tab.c" /* yacc.c:352  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -565,16 +564,16 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    84,    84,    85,    89,    90,    91,    95,    99,   100,
-     103,   104,   105,   106,   107,   108,   109,   113,   117,   118,
-     119,   123,   124,   125,   129,   133,   136,   137,   141,   145,
-     146,   149,   153,   154,   155,   159,   163,   167,   171,   172,
-     176,   177,   178,   182,   191,   192,   193,   194,   195,   199,
-     200,   204,   205,   209,   210,   214,   215,   219,   220,   221,
-     225,   226,   227,   228,   232,   233,   234,   235,   236,   237,
-     241,   242,   243,   244,   245,   246,   250,   251,   252,   253,
-     257,   258,   259,   264,   265,   266,   270,   271,   272,   273,
-     278,   283,   284,   285,   286
+       0,    83,    83,    84,    88,    89,    90,    94,    98,    99,
+     102,   103,   104,   105,   106,   107,   108,   112,   116,   117,
+     118,   122,   123,   124,   128,   132,   135,   136,   140,   144,
+     145,   148,   152,   153,   154,   158,   162,   166,   170,   171,
+     175,   176,   177,   181,   189,   190,   191,   192,   193,   197,
+     198,   202,   203,   207,   208,   212,   213,   217,   218,   219,
+     223,   224,   225,   226,   230,   231,   232,   233,   234,   235,
+     239,   240,   241,   242,   243,   244,   248,   249,   250,   251,
+     255,   256,   257,   262,   263,   264,   268,   269,   270,   271,
+     276,   281,   282,   283,   284
 };
 #endif
 
@@ -1464,163 +1463,66 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 2:
-#line 84 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( program_body )\n"); }
-#line 1471 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 4:
-#line 89 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( function_declaration )");}
-#line 1477 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 5:
-#line 90 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( variable_declaration )");}
-#line 1483 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 6:
-#line 91 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( function definition )\n"); }
-#line 1489 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 7:
-#line 95 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf("( ID = %s )\n", (yyvsp[-4].string)); }
-#line 1495 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 10:
-#line 103 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( while_statement )\n"); }
-#line 1501 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 11:
-#line 104 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( if_statement )\n"); }
-#line 1507 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 12:
-#line 105 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( variable_declaration )\n"); }
-#line 1513 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 13:
-#line 106 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( printf_statement )\n"); }
-#line 1519 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 14:
-#line 107 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( expression_statement )\n"); }
-#line 1525 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 15:
-#line 108 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( function_call )\n"); }
-#line 1531 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 16:
-#line 109 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" ( return_statement )\n"); }
-#line 1537 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 36:
-#line 163 "compiler_hw2.y" /* yacc.c:1652  */
+        case 36:
+#line 162 "compiler_hw2.y" /* yacc.c:1652  */
     { scope++; printf(" (----Scope Start---- %d)\n", scope);}
-#line 1543 "y.tab.c" /* yacc.c:1652  */
+#line 1470 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 37:
-#line 167 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf(" (----Scope End----)\n"); dump_flag = 1; scope--; }
-#line 1549 "y.tab.c" /* yacc.c:1652  */
+#line 166 "compiler_hw2.y" /* yacc.c:1652  */
+    { printf(" (----Scope End---- %d)\n", scope); dump_flag = 1; scope--; }
+#line 1476 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 43:
-#line 182 "compiler_hw2.y" /* yacc.c:1652  */
+#line 181 "compiler_hw2.y" /* yacc.c:1652  */
     { 
-        printf(" (----%d %s----)\n", (yyvsp[-1].i_val), (yyvsp[0].string));
-        //( int index, char * name, kindEnum kind, int type, int scope, char * attribute)
-        create_symbol(scope_index[scope], (yyvsp[0].string), PARAMETER, (yyvsp[-1].i_val), scope, "");
-        scope_index[scope]++;
+        printf(" (----%d %s scope-%d----)\n", (yyvsp[-1].i_val), (yyvsp[0].string), scope+1);
+        insert_symbol(&table[scope+1], scope_index[scope+1], (yyvsp[0].string), PARAMETER, (yyvsp[-1].i_val), scope+1, "");
+        scope_index[scope+1]++;
     }
-#line 1560 "y.tab.c" /* yacc.c:1652  */
+#line 1486 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 44:
-#line 191 "compiler_hw2.y" /* yacc.c:1652  */
+#line 189 "compiler_hw2.y" /* yacc.c:1652  */
     { (yyval.i_val) = VOID; }
-#line 1566 "y.tab.c" /* yacc.c:1652  */
+#line 1492 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 45:
-#line 192 "compiler_hw2.y" /* yacc.c:1652  */
+#line 190 "compiler_hw2.y" /* yacc.c:1652  */
     { (yyval.i_val) = INT; }
-#line 1572 "y.tab.c" /* yacc.c:1652  */
+#line 1498 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 46:
-#line 193 "compiler_hw2.y" /* yacc.c:1652  */
+#line 191 "compiler_hw2.y" /* yacc.c:1652  */
     { (yyval.i_val) = FLOAT; }
-#line 1578 "y.tab.c" /* yacc.c:1652  */
+#line 1504 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 47:
-#line 194 "compiler_hw2.y" /* yacc.c:1652  */
+#line 192 "compiler_hw2.y" /* yacc.c:1652  */
     { (yyval.i_val) = BOOL; }
-#line 1584 "y.tab.c" /* yacc.c:1652  */
+#line 1510 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 48:
-#line 195 "compiler_hw2.y" /* yacc.c:1652  */
+#line 193 "compiler_hw2.y" /* yacc.c:1652  */
     { (yyval.i_val) = STRING; }
-#line 1590 "y.tab.c" /* yacc.c:1652  */
+#line 1516 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 86:
-#line 270 "compiler_hw2.y" /* yacc.c:1652  */
+#line 268 "compiler_hw2.y" /* yacc.c:1652  */
     { printf("( ID = %s )\n", yytext); }
-#line 1596 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 91:
-#line 283 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf("%d\n", (yyvsp[0].i_val)); }
-#line 1602 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 92:
-#line 284 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf("%f\n", (yyvsp[0].f_val)); }
-#line 1608 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 93:
-#line 285 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf("%d\n", (yyvsp[0].i_val)); }
-#line 1614 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 94:
-#line 286 "compiler_hw2.y" /* yacc.c:1652  */
-    { printf("%d\n", (yyvsp[0].i_val)); }
-#line 1620 "y.tab.c" /* yacc.c:1652  */
+#line 1522 "y.tab.c" /* yacc.c:1652  */
     break;
 
 
-#line 1624 "y.tab.c" /* yacc.c:1652  */
+#line 1526 "y.tab.c" /* yacc.c:1652  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1851,7 +1753,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 289 "compiler_hw2.y" /* yacc.c:1918  */
+#line 287 "compiler_hw2.y" /* yacc.c:1918  */
 
 
 /* C code section */
@@ -1874,30 +1776,22 @@ void yyerror(char *s)
     printf("\n|-----------------------------------------------|\n\n");
 }
 
-
-Node* create_symbol(int index, char * name, kindEnum kind, int type, int scope, char * attribute)
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute)
 {
-    Node * newNode = (Node *)malloc(sizeof(Node));
-    newNode->index = index;
-    newNode->name = name;
-    newNode->kind = kind;
-    newNode->type = type;
-    newNode->scope = scope;
-    newNode->attribute = attribute;
-    newNode->next = NULL;
-    return newNode;
-}
-
-void insert_symbol(Node** head_ref, Node * new_node) 
-{ 
     Node *last = *head_ref;
-
+    Node * new_node = (Node *)malloc(sizeof(Node));
+    new_node->index = index;
+    new_node->name = name;
+    new_node->kind = kind;
+    new_node->type = type;
+    new_node->scope = scope;
+    new_node->attribute = attribute;
     new_node->next = NULL; 
   
     if (*head_ref == NULL) 
-    { 
-       *head_ref = new_node; 
-       return; 
+    {  
+        *head_ref = new_node; 
+        return; 
     }   
        
     while (last->next != NULL) 
@@ -1913,6 +1807,21 @@ int lookup_symbol(int scope)
 }
 
 void dump_symbol(int scope) {
+    if(table[scope] == NULL) {
+        return;
+    }
     printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
            "Index", "Name", "Kind", "Type", "Scope", "Attribute");
+    Node * tmp = table[scope];
+    while(tmp->next != NULL) {
+        printf("yeah im here\n");
+        printf("%-10d%-10s%-12d%-10d%-10d%-10s\n",
+           tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
+        free(tmp);
+        tmp = tmp->next;
+    }
+    printf("%-10d%-10s%-12d%-10d%-10d%-10s\n\n",
+        tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
+    free(tmp);
+    table[scope] = NULL;
 }

@@ -1,0 +1,32 @@
+char kind[100];
+        char type[100];
+        switch(tmp->kind) {
+            case PARAMETER:
+                strcpy(kind, "parameter");
+                break;
+            case FUNCTION:
+                strcpy(kind, "function");
+                break;
+            case VARIABLE:
+                strcpy(kind, "variable");
+                break;
+            default: break;
+        }
+        switch(tmp->kind) {
+            case VOID:
+                strcpy(type, "void");
+                break;
+            case FLOAT:
+                strcpy(type, "float");
+                break;
+            case INT:
+                strcpy(type, "int");
+                break;
+            case STRING:
+                strcpy(type, "string");
+                break;
+            case BOOL:
+                strcpy(type, "bool");
+                break;
+            default: break;
+        }

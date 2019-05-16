@@ -2,7 +2,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 typedef enum {
     PARAMETER, FUNCTION, VARIABLE
 } kindEnum;
@@ -19,7 +19,7 @@ typedef struct Node {
 
 int scope;
 
-Node * table[100];
+Node * table[100] = { NULL };
 
 int scope_index[100];
 
@@ -30,8 +30,7 @@ extern char* yytext;   // Get current token from lex
 extern char buf[256];  // Get current code line from lex
 
 /* Symbol table function - you can add new function if needed. */
-Node* create_symbol(int index, char * name, kindEnum kind, int type, int scope, char * attribute);
-void insert_symbol(Node** head_ref, Node * new_node);
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute);
 void dump_symbol(int scope);
 int lookup_symbol(int scope);
 
@@ -81,18 +80,18 @@ extern int dump_flag;
 %%
 
 program 
-    : program program_body { printf(" ( program_body )\n"); }
+    : program program_body
     |
 ;
 
 program_body
-    : function_declaration { printf(" ( function_declaration )");}
-    | variable_declaration { printf(" ( variable_declaration )");}
-    | function { printf(" ( function definition )\n"); }
+    : function_declaration
+    | variable_declaration
+    | function
 ;
 
 function
-    : type ID LB parameter_list RB block_body { printf("( ID = %s )\n", $2); }
+    : type ID LB parameter_list RB block_body
 ;
 
 stats
@@ -100,13 +99,13 @@ stats
     |
 
 stat
-    : while_statement { printf(" ( while_statement )\n"); }
-    | if_statement { printf(" ( if_statement )\n"); }
-    | variable_declaration { printf(" ( variable_declaration )\n"); }
-    | printf_statement { printf(" ( printf_statement )\n"); }
-    | expression_statement { printf(" ( expression_statement )\n"); }
-    | function_call  { printf(" ( function_call )\n"); }
-    | return_statement { printf(" ( return_statement )\n"); }
+    : while_statement
+    | if_statement 
+    | variable_declaration
+    | printf_statement 
+    | expression_statement 
+    | function_call
+    | return_statement 
 ;
 
 function_call
@@ -164,7 +163,7 @@ left_brace
 ;
 
 right_brace
-    : RCB { printf(" (----Scope End----)\n"); dump_flag = 1; scope--; }
+    : RCB { printf(" (----Scope End---- %d)\n", scope); dump_flag = 1; scope--; }
 ;
 
 expression
@@ -180,10 +179,9 @@ parameter_list
 
 parameter
     : type ID { 
-        printf(" (----%d %s----)\n", $1, $2);
-        //( int index, char * name, kindEnum kind, int type, int scope, char * attribute)
-        create_symbol(scope_index[scope], $2, PARAMETER, $1, scope, "");
-        scope_index[scope]++;
+        printf(" (----%d %s scope-%d----)\n", $1, $2, scope+1);
+        insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
+        scope_index[scope+1]++;
     }
 ;
 
@@ -280,10 +278,10 @@ string
 
 
 constant
-    : I_CONST { printf("%d\n", $1); }
-    | F_CONST { printf("%f\n", $1); }
-    | TRUE { printf("%d\n", $1); }
-    | FALSE { printf("%d\n", $1); }
+    : I_CONST 
+    | F_CONST
+    | TRUE
+    | FALSE
 ;
 
 %%
@@ -308,30 +306,22 @@ void yyerror(char *s)
     printf("\n|-----------------------------------------------|\n\n");
 }
 
-
-Node* create_symbol(int index, char * name, kindEnum kind, int type, int scope, char * attribute)
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute)
 {
-    Node * newNode = (Node *)malloc(sizeof(Node));
-    newNode->index = index;
-    newNode->name = name;
-    newNode->kind = kind;
-    newNode->type = type;
-    newNode->scope = scope;
-    newNode->attribute = attribute;
-    newNode->next = NULL;
-    return newNode;
-}
-
-void insert_symbol(Node** head_ref, Node * new_node) 
-{ 
     Node *last = *head_ref;
-
+    Node * new_node = (Node *)malloc(sizeof(Node));
+    new_node->index = index;
+    new_node->name = name;
+    new_node->kind = kind;
+    new_node->type = type;
+    new_node->scope = scope;
+    new_node->attribute = attribute;
     new_node->next = NULL; 
   
     if (*head_ref == NULL) 
-    { 
-       *head_ref = new_node; 
-       return; 
+    {  
+        *head_ref = new_node; 
+        return; 
     }   
        
     while (last->next != NULL) 
@@ -347,6 +337,20 @@ int lookup_symbol(int scope)
 }
 
 void dump_symbol(int scope) {
+    if(table[scope] == NULL) {
+        return;
+    }
     printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
            "Index", "Name", "Kind", "Type", "Scope", "Attribute");
+    Node * tmp = table[scope];
+    while(tmp->next != NULL) {
+        printf("%-10d%-10s%-12d%-10d%-10d%-10s\n",
+           tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
+        free(tmp);
+        tmp = tmp->next;
+    }
+    printf("%-10d%-10s%-12d%-10d%-10d%-10s\n\n",
+        tmp->index, tmp->name, tmp->kind, tmp->type, tmp->scope, tmp->attribute);
+    free(tmp);
+    table[scope] = NULL;
 }
