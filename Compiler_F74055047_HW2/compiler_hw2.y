@@ -34,7 +34,8 @@ extern char buf[256];  // Get current code line from lex
 void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute);
 void enum_to_string(char * stringkind, char * stringtype, int kind, int type);
 void dump_symbol(int scope);
-int lookup_symbol(int scope);
+int lookup_symbol(int scope, char * name, kindEnum kind);
+void custom_yyerror(char *s);
 
 extern int dump_flag;
 
@@ -94,10 +95,14 @@ program_body
 
 function
     : type ID LB parameter_list RB block_body { 
-            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute);
-            strcpy(attribute, "");
-            scope_index[scope]++;
-        }
+            if(!lookup_symbol(scope, $2, FUNCTION)) {
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute);
+                strcpy(attribute, "");
+                scope_index[scope]++;
+            } else {
+                custom_yyerror($2);
+            }
+        } 
 ;
 
 stats
@@ -115,7 +120,11 @@ stat
 ;
 
 function_call
-    : ID LB argument_list RB SEMICOLON
+    : ID LB argument_list RB SEMICOLON {
+            if(!lookup_symbol(scope, $1, FUNCTION)) {
+                custom_yyerror($1);
+            }
+        }
 ;
 
 argument_list
@@ -131,7 +140,11 @@ expression_statement
 ;
 
 assign_statement
-    : ID assignment_operator expression SEMICOLON
+    : ID assignment_operator expression SEMICOLON { 
+            if(!lookup_symbol(scope, $1, VARIABLE)) {
+                custom_yyerror($1);
+            }
+        }
 ;
 
 return_statement
@@ -139,7 +152,11 @@ return_statement
 
 printf_statement
     : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON
-    | PRINT LB ID RB SEMICOLON
+    | PRINT LB ID RB SEMICOLON {
+            if(!lookup_symbol(scope, $3, VARIABLE)) {
+                custom_yyerror($3);
+            }
+        }
 ;
 
 function_declaration
@@ -148,14 +165,22 @@ function_declaration
 
 variable_declaration
     : type ID SEMICOLON {
-            insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
-            strcpy(attribute, "");
-            scope_index[scope]++;
+            if(!lookup_symbol(scope, $2, VARIABLE)) {
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
+                strcpy(attribute, "");
+                scope_index[scope]++;
+            } else {
+                custom_yyerror($2);
+            }
         }
     | type ID ASGN expression SEMICOLON {
-            insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
-            strcpy(attribute, "");
-            scope_index[scope]++;
+            if(!lookup_symbol(scope, $2, VARIABLE)) {
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
+                strcpy(attribute, "");
+                scope_index[scope]++;
+            } else {
+                custom_yyerror($2);
+            }
         }
 
 while_statement
@@ -317,7 +342,11 @@ postfix_expression
 ;
 
 primary_expression
-	: ID
+	: ID { 
+            if(!lookup_symbol(scope, $1, VARIABLE)) {
+                custom_yyerror($1);
+            }
+        }
 	| constant
     | string
 	| LB expression RB
@@ -352,7 +381,6 @@ int main(int argc, char** argv)
 
 void yyerror(char *s)
 {
-    printf("%d: %s\n", yylineno + 1, buf);
     printf("\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
@@ -393,9 +421,57 @@ void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int t
     return;   
 }
 
-int lookup_symbol(int scope)
-{
+int lookup_symbol(int scope, char * name, kindEnum kind)
+{   
+    int i = 0;
+    int flag = 0;
+    while(!flag && i <= scope) {
+        if(flag == 1) return flag;
+        if(table[i] == NULL) {
+            i++;
+            continue;
+        } 
+        else {
+            Node* tmp = table[i];
+            while(tmp->next != NULL) {
+                if(!strcmp(tmp->name, name) && (tmp->kind == kind || tmp->kind==PARAMETER)) {
+                    flag = 1;
+                    break;
+                }
+                tmp = tmp->next;
+            }
+            if(!strcmp(tmp->name, name) && (tmp->kind == kind || tmp->kind==PARAMETER)) {
+                flag = 1;
+                break;
+            }
+        }
+        i++;
+    }
+    return flag;
+}
 
+void dump_symbol(int scope) {
+    char stringkind[100];
+    char stringtype[100];
+    if(table[scope] == NULL) {
+        return;
+    }
+    printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
+           "Index", "Name", "Kind", "Type", "Scope", "Attribute");
+    Node * tmp = table[scope];
+    while(tmp->next != NULL) {
+        enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
+        printf("%-10d%-10s%-12s%-10s%-10d%-s\n",
+           tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
+        free(tmp);
+        tmp = tmp->next;
+    }
+    enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
+    printf("%-10d%-10s%-12s%-10s%-10d%-s\n\n",
+        tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
+    free(tmp);
+    table[scope] = NULL;
+    scope_index[scope] = 0;
 }
 
 void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
@@ -430,28 +506,4 @@ void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
             break;
         default: break;
     }
-}
-
-void dump_symbol(int scope) {
-    char stringkind[100];
-    char stringtype[100];
-    if(table[scope] == NULL) {
-        return;
-    }
-    printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
-           "Index", "Name", "Kind", "Type", "Scope", "Attribute");
-    Node * tmp = table[scope];
-    while(tmp->next != NULL) {
-        enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
-        printf("%-10d%-10s%-12s%-10s%-10d%-s\n",
-           tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
-        free(tmp);
-        tmp = tmp->next;
-    }
-    enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
-    printf("%-10d%-10s%-12s%-10s%-10d%-s\n\n",
-        tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
-    free(tmp);
-    table[scope] = NULL;
-    scope_index[scope] = 0;
 }
