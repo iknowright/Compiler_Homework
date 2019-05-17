@@ -9,6 +9,7 @@ extern YYSTYPE yylval; //YYSTYPE
 char buf[BUF_SIZE];
 
 int dump_flag = 0;
+int semantic_flag = 0;
 extern void dump_symbol(int scope);
 extern int scope;
 
@@ -116,11 +117,14 @@ id			{letter}+({letter}|{digit})*
 [;]         { CONCAT; return(SEMICOLON); }
 [\n]        { 
                 CONCAT;
-                if(strlen(buf) == 1) {
-                    printf("%d:\n", yylineno);
-                } else {
-                    printf("%d: %s", yylineno, buf);
+                if (!semantic_flag) {
+                    if(strlen(buf) == 1) {
+                        printf("%d:\n", yylineno);
+                    } else {
+                        printf("%d: %s", yylineno, buf);
+                    }
                 }
+                semantic_flag = 0;
                 strcpy(buf,"");
                 if(dump_flag) {
                     dump_symbol(scope+1);

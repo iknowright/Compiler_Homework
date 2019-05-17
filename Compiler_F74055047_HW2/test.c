@@ -9,6 +9,7 @@ int argc = 6;
 int main(int argc, char const *argv[])
 {
     int func;
+    func;
     printf("%d\n", argc);
     /* code */
     return 0;

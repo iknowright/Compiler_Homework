@@ -38,6 +38,9 @@ int lookup_symbol(int scope, char * name, kindEnum kind);
 void custom_yyerror(char *s);
 
 extern int dump_flag;
+extern int semantic_flag;
+int syntactic_flag;
+char error_str[100];
 
 %}
 
@@ -100,7 +103,10 @@ function
                 strcpy(attribute, "");
                 scope_index[scope]++;
             } else {
-                custom_yyerror($2);
+                semantic_flag = 1;
+                strcpy(error_str, "Redeclared function ");
+                strcat(error_str, $2);
+                custom_yyerror(error_str);
             }
         } 
 ;
@@ -122,7 +128,10 @@ stat
 function_call
     : ID LB argument_list RB SEMICOLON {
             if(!lookup_symbol(scope, $1, FUNCTION)) {
-                custom_yyerror($1);
+                semantic_flag = 1;
+                strcpy(error_str, "Undeclared function ");
+                strcat(error_str, $1);
+                custom_yyerror(error_str);
             }
         }
 ;
@@ -142,7 +151,10 @@ expression_statement
 assign_statement
     : ID assignment_operator expression SEMICOLON { 
             if(!lookup_symbol(scope, $1, VARIABLE)) {
-                custom_yyerror($1);
+                semantic_flag = 1;
+                strcpy(error_str, "Undeclared variable ");
+                strcat(error_str, $1);
+                custom_yyerror(error_str);
             }
         }
 ;
@@ -154,7 +166,10 @@ printf_statement
     : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON
     | PRINT LB ID RB SEMICOLON {
             if(!lookup_symbol(scope, $3, VARIABLE)) {
-                custom_yyerror($3);
+                semantic_flag = 1;
+                strcpy(error_str, "Undeclared variable ");
+                strcat(error_str, $3);
+                custom_yyerror(error_str);
             }
         }
 ;
@@ -170,7 +185,11 @@ variable_declaration
                 strcpy(attribute, "");
                 scope_index[scope]++;
             } else {
-                custom_yyerror($2);
+                semantic_flag = 1;
+                
+                strcpy(error_str, "Redeclared variable ");
+                strcat(error_str, $2);
+                custom_yyerror(error_str);
             }
         }
     | type ID ASGN expression SEMICOLON {
@@ -179,7 +198,10 @@ variable_declaration
                 strcpy(attribute, "");
                 scope_index[scope]++;
             } else {
-                custom_yyerror($2);
+                semantic_flag = 1;
+                strcpy(error_str, "Redeclared variable ");
+                strcat(error_str, $2);
+                custom_yyerror(error_str);
             }
         }
 
@@ -344,7 +366,10 @@ postfix_expression
 primary_expression
 	: ID { 
             if(!lookup_symbol(scope, $1, VARIABLE)) {
-                custom_yyerror($1);
+                semantic_flag = 1;
+                strcpy(error_str, "Undeclared variable ");
+                strcat(error_str, $1);
+                custom_yyerror(error_str);
             }
         }
 	| constant
@@ -373,14 +398,17 @@ int main(int argc, char** argv)
     yylineno = 0;
         
     yyparse();
-    dump_symbol(0);
-	printf("\nTotal lines: %d \n",yylineno);
-
+    if(!syntactic_flag) {
+        dump_symbol(0);
+        printf("\nTotal lines: %d \n",yylineno);
+    }
     return 0;
 }
 
 void yyerror(char *s)
 {
+    syntactic_flag = 1;
+    custom_yyerror(error_str);
     printf("\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);

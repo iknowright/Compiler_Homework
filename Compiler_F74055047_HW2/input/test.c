@@ -2,7 +2,7 @@
  * 2019 Spring Compiler Course Assignment 2 
  */
 
-int a = 5;
+float c = 1.5;
 
 bool loop(int n, int m) {
     while (n > m) {
@@ -15,24 +15,16 @@ int main() {
     // Declaration
     int x;
     int i;
-    int a = (5 > b) + (b + 3);
-    string y = "She is a girl";
+    int a = 5;
 
-    print(y); // print
-
-    // if condition
-    if (a > 10) {
+    // syntactical error
+    iff (a > 10) {
         x += a;
         print(x);
-    } else if (a == 10){
+    } else {
         x = a % 10 + 10 * 7; /* Arithmetic */
         print(x);
-        if (1) {
-            x += a;
-            print(x);
-        }
     }
-    loop(x, i);
     print("Hello World");
 
     return 0; 
