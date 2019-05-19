@@ -106,6 +106,7 @@ function
             strcat(error_str, $2);
             custom_yyerror(error_str);
         }
+        forward_flag = 1;
     } 
 ;
 
@@ -173,7 +174,18 @@ printf_statement
 
 function_declaration
     : type ID LB parameter_list RB SEMICOLON {
-        
+        if(!forward_flag) {
+            if(!lookup_symbol(scope, $2, FUNCTION)) {
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
+                strcpy($4, "");
+                scope_index[scope]++;
+            } else {
+                semantic_flag = 1;
+                strcpy(error_str, "Redeclared function ");
+                strcat(error_str, $2);
+                custom_yyerror(error_str);
+            }
+        }
     }
 ;
 
@@ -390,7 +402,6 @@ int main(int argc, char** argv)
 void yyerror(char *s)
 {
     syntactic_flag = 1;
-    // custom_yyerror(error_str);
     printf("\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
