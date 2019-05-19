@@ -23,8 +23,6 @@ Node * table[100] = { NULL };
 
 int scope_index[100];
 
-char attribute[100] = "";
-
 extern int yylineno;
 extern int yylex();
 extern char* yytext;   // Get current token from lex
@@ -41,7 +39,7 @@ extern int dump_flag;
 extern int semantic_flag;
 int syntactic_flag;
 char error_str[100];
-
+int forward_flag;
 %}
 
 /* Use variable or self-defined structure to represent
@@ -78,7 +76,7 @@ char error_str[100];
 
 /* Nonterminal with return, which need to sepcify type */
 %type <i_val> type
-
+%type <string> parameter_list parameter
 /* Yacc will start at this nonterminal */
 %start program
 
@@ -98,17 +96,17 @@ program_body
 
 function
     : type ID LB parameter_list RB block_body { 
-            if(!lookup_symbol(scope, $2, FUNCTION)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute);
-                strcpy(attribute, "");
-                scope_index[scope]++;
-            } else {
-                semantic_flag = 1;
-                strcpy(error_str, "Redeclared function ");
-                strcat(error_str, $2);
-                custom_yyerror(error_str);
-            }
-        } 
+        if(!lookup_symbol(scope, $2, FUNCTION)) {
+            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
+            strcpy($4, "");
+            scope_index[scope]++;
+        } else {
+            semantic_flag = 1;
+            strcpy(error_str, "Redeclared function ");
+            strcat(error_str, $2);
+            custom_yyerror(error_str);
+        }
+    } 
 ;
 
 stats
@@ -121,12 +119,11 @@ stat
     | variable_declaration
     | printf_statement 
     | expression_statement 
-    | function_call
     | return_statement 
 ;
 
 function_call
-    : ID LB argument_list RB SEMICOLON {
+    : ID LB argument_list RB {     
             if(!lookup_symbol(scope, $1, FUNCTION)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared function ");
@@ -149,7 +146,7 @@ expression_statement
 ;
 
 assign_statement
-    : ID assignment_operator expression SEMICOLON { 
+    : ID assignment_operator expression SEMICOLON {        
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -164,7 +161,7 @@ return_statement
 
 printf_statement
     : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON
-    | PRINT LB ID RB SEMICOLON {
+    | PRINT LB ID RB SEMICOLON {          
             if(!lookup_symbol(scope, $3, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -175,18 +172,18 @@ printf_statement
 ;
 
 function_declaration
-    : type ID LB parameter_list RB SEMICOLON
+    : type ID LB parameter_list RB SEMICOLON {
+        
+    }
 ;
 
 variable_declaration
     : type ID SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
-                strcpy(attribute, "");
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "");
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
-                
                 strcpy(error_str, "Redeclared variable ");
                 strcat(error_str, $2);
                 custom_yyerror(error_str);
@@ -194,8 +191,7 @@ variable_declaration
         }
     | type ID ASGN expression SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, attribute);
-                strcpy(attribute, "");
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "");
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -233,52 +229,37 @@ expression
 ;
 
 parameter_list
-    : parameter 
-    | parameter_list COMMA parameter
-    |
+    : parameter { $$ = strdup($1); }
+    | parameter_list COMMA parameter {
+            char * tmp;
+            tmp = strdup(", ");
+            strcat(tmp, $3);
+            strcat($1, tmp);
+            $$ = $1;
+        }
+    | { strcat($$, ""); }
 ;
 
 parameter
     : type ID { 
         insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
-        if(scope_index[scope+1] == 0) {
-            switch($1) {
-                case VOID:
-                    strcat(attribute, "void");
-                    break;
-                case FLOAT:
-                    strcat(attribute, "float");
-                    break;
-                case INT:
-                    strcat(attribute, "int");
-                    break;
-                case STRING:
-                    strcat(attribute, "string");
-                    break;
-                case BOOL:
-                    strcat(attribute, "bool");
-                    break;
-                default: break;
-            }
-        } else {
-            switch($1) {
-                case VOID:
-                    strcat(attribute, ", void");
-                    break;
-                case FLOAT:
-                    strcat(attribute, ", float");
-                    break;
-                case INT:
-                    strcat(attribute, ", int");
-                    break;
-                case STRING:
-                    strcat(attribute, ", string");
-                    break;
-                case BOOL:
-                    strcat(attribute, ", bool");
-                    break;
-                default: break;
-            }
+        switch($1) {
+            case VOID:
+                $$ = strdup("void");
+                break;
+            case FLOAT:
+                $$ = strdup("float");
+                break;
+            case INT:
+                $$ = strdup("int");
+                break;
+            case STRING:
+                $$ = strdup("string");
+                break;
+            case BOOL:
+                $$ = strdup("bool");
+                break;
+            default: break;
         }
         scope_index[scope+1]++;
     }
@@ -364,7 +345,7 @@ postfix_expression
 ;
 
 primary_expression
-	: ID { 
+	: ID {    
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -375,6 +356,7 @@ primary_expression
 	| constant
     | string
 	| LB expression RB
+    | function_call
 	;
 ;
 
@@ -408,7 +390,7 @@ int main(int argc, char** argv)
 void yyerror(char *s)
 {
     syntactic_flag = 1;
-    custom_yyerror(error_str);
+    // custom_yyerror(error_str);
     printf("\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);

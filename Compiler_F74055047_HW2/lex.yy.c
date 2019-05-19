@@ -1157,7 +1157,10 @@ YY_RULE_SETUP
 #line 119 "compiler_hw2.l"
 { 
                 CONCAT;
-                if (!semantic_flag) {
+                if(semantic_flag) {
+
+                }
+                else {
                     if(strlen(buf) == 1) {
                         printf("%d:\n", yylineno);
                     } else {
@@ -1174,20 +1177,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 135 "compiler_hw2.l"
+#line 138 "compiler_hw2.l"
 { CONCAT; } /* Ignore */
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 136 "compiler_hw2.l"
+#line 139 "compiler_hw2.l"
 { CONCAT; } /* Ignore other charactor sets */
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 138 "compiler_hw2.l"
+#line 141 "compiler_hw2.l"
 ECHO;
 	YY_BREAK
-#line 1190 "lex.yy.c"
+#line 1193 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(STRING_STATE):
@@ -2206,7 +2209,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 138 "compiler_hw2.l"
+#line 141 "compiler_hw2.l"
 
 
 int yywrap()

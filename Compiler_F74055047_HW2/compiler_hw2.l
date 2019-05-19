@@ -117,7 +117,10 @@ id			{letter}+({letter}|{digit})*
 [;]         { CONCAT; return(SEMICOLON); }
 [\n]        { 
                 CONCAT;
-                if (!semantic_flag) {
+                if(semantic_flag) {
+
+                }
+                else {
                     if(strlen(buf) == 1) {
                         printf("%d:\n", yylineno);
                     } else {
