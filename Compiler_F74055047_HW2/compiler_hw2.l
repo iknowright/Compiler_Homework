@@ -13,6 +13,9 @@ int semantic_flag = 0;
 extern void dump_symbol(int scope);
 extern int scope;
 
+extern void custom_yyerror(char *s);
+extern char error_str[100];
+
 /* This macro is used to record code line */
 #define CONCAT strncat(buf, yytext, BUF_SIZE - strlen(buf) - 1)
 %}
@@ -118,7 +121,7 @@ id			{letter}+({letter}|{digit})*
 [\n]        { 
                 CONCAT;
                 if(semantic_flag) {
-
+                    custom_yyerror(error_str);
                 }
                 else {
                     if(strlen(buf) == 1) {

@@ -40,6 +40,7 @@ extern int semantic_flag;
 int syntactic_flag;
 char error_str[100];
 int forward_flag;
+
 %}
 
 /* Use variable or self-defined structure to represent
@@ -104,7 +105,6 @@ function
             semantic_flag = 1;
             strcpy(error_str, "Redeclared function ");
             strcat(error_str, $2);
-            custom_yyerror(error_str);
         }
         forward_flag = 1;
     } 
@@ -129,7 +129,6 @@ function_call
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared function ");
                 strcat(error_str, $1);
-                custom_yyerror(error_str);
             }
         }
 ;
@@ -152,7 +151,6 @@ assign_statement
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
                 strcat(error_str, $1);
-                custom_yyerror(error_str);
             }
         }
 ;
@@ -167,7 +165,6 @@ printf_statement
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
                 strcat(error_str, $3);
-                custom_yyerror(error_str);
             }
         }
 ;
@@ -183,7 +180,6 @@ function_declaration
                 semantic_flag = 1;
                 strcpy(error_str, "Redeclared function ");
                 strcat(error_str, $2);
-                custom_yyerror(error_str);
             }
         }
     }
@@ -198,7 +194,6 @@ variable_declaration
                 semantic_flag = 1;
                 strcpy(error_str, "Redeclared variable ");
                 strcat(error_str, $2);
-                custom_yyerror(error_str);
             }
         }
     | type ID ASGN expression SEMICOLON {
@@ -209,7 +204,6 @@ variable_declaration
                 semantic_flag = 1;
                 strcpy(error_str, "Redeclared variable ");
                 strcat(error_str, $2);
-                custom_yyerror(error_str);
             }
         }
 
@@ -362,7 +356,6 @@ primary_expression
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
                 strcat(error_str, $1);
-                custom_yyerror(error_str);
             }
         }
 	| constant
@@ -402,6 +395,9 @@ int main(int argc, char** argv)
 void yyerror(char *s)
 {
     syntactic_flag = 1;
+    if(semantic_flag) {
+        custom_yyerror(error_str);
+    }
     printf("\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
@@ -410,9 +406,16 @@ void yyerror(char *s)
 
 void custom_yyerror(char *s)
 {
-    printf("%d: %s\n", yylineno + 1, buf);
-    printf("\n|-----------------------------------------------|\n");
-    printf("| Error found in line %d: %s\n", yylineno + 1, buf);
+    if(syntactic_flag) {
+        printf("%d: %s\n", yylineno + 1, buf);
+        printf("\n|-----------------------------------------------|\n");
+        printf("| Error found in line %d: %s\n", yylineno + 1, buf);
+    } else {
+        // it is because the normal semantic error is done in the lex
+        printf("%d: %s", yylineno, buf);
+        printf("\n|-----------------------------------------------|\n");
+        printf("| Error found in line %d: %s", yylineno, buf);
+    }
     printf("| %s", s);
     printf("\n|-----------------------------------------------|\n\n");
 }
