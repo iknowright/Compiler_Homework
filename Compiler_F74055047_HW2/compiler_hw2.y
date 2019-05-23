@@ -36,6 +36,7 @@ int lookup_symbol(int scope, char * name, kindEnum kind);
 void custom_yyerror(char *s);
 
 extern int dump_flag;
+extern void yyerror(char * s);
 extern int semantic_flag;
 int syntactic_flag;
 char error_str[100];
@@ -96,18 +97,21 @@ program_body
 ;
 
 function
-    : type ID LB parameter_list RB block_body { 
-        if(!lookup_symbol(scope, $2, FUNCTION)) {
-            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
-            strcpy($4, "");
-            scope_index[scope]++;
-        } else {
-            semantic_flag = 1;
-            strcpy(error_str, "Redeclared function ");
-            strcat(error_str, $2);
+    : type ID LB parameter_list RB block_body {
+        if(!forward_flag) {
+            if(!lookup_symbol(scope, $2, FUNCTION)) {
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
+                strcpy($4, "");
+                scope_index[scope]++;
+            } else {
+                semantic_flag = 1;
+                strcpy(error_str, "Redeclared function ");
+                strcat(error_str, $2);
+            }
         }
-        forward_flag = 1;
-    } 
+        strcpy($4, "");
+        forward_flag = 0;
+    }
 ;
 
 stats
@@ -171,17 +175,16 @@ printf_statement
 
 function_declaration
     : type ID LB parameter_list RB SEMICOLON {
-        if(!forward_flag) {
-            if(!lookup_symbol(scope, $2, FUNCTION)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
-                strcpy($4, "");
-                scope_index[scope]++;
-            } else {
-                semantic_flag = 1;
-                strcpy(error_str, "Redeclared function ");
-                strcat(error_str, $2);
-            }
+        if(!lookup_symbol(scope, $2, FUNCTION)) {
+            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
+            strcpy($4, "");
+            scope_index[scope]++;
+        } else {
+            semantic_flag = 1;
+            strcpy(error_str, "Redeclared function ");
+            strcat(error_str, $2);
         }
+        forward_flag = 1;
     }
 ;
 
@@ -247,8 +250,8 @@ parameter_list
 ;
 
 parameter
-    : type ID { 
-        insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
+    : type ID {
+        if(!forward_flag) insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
         switch($1) {
             case VOID:
                 $$ = strdup("void");
