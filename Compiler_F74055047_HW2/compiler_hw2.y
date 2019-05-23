@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 typedef enum {
     PARAMETER, FUNCTION, VARIABLE
 } kindEnum;
@@ -14,8 +15,16 @@ typedef struct Node {
     int type;
     int scope;
     char * attribute;
+    int func_flag;
     struct Node * next;
 } Node;
+
+struct Param{
+    char * attribute;
+    int type;
+    char * name;
+    struct Param * next;
+};
 
 int scope;
 
@@ -29,7 +38,7 @@ extern char* yytext;   // Get current token from lex
 extern char buf[256];  // Get current code line from lex
 
 /* Symbol table function - you can add new function if needed. */
-void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute);
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag);
 void enum_to_string(char * stringkind, char * stringtype, int kind, int type);
 void dump_symbol(int scope);
 int lookup_symbol(int scope, char * name, kindEnum kind);
@@ -40,8 +49,9 @@ extern void yyerror(char * s);
 extern int semantic_flag;
 int syntactic_flag;
 char error_str[100];
-int forward_flag;
 
+void insertParam(struct Param ** head_ref, struct Param * new_param);
+void loopParam(char ** attribute_str, struct Param * head);
 %}
 
 /* Use variable or self-defined structure to represent
@@ -51,6 +61,7 @@ int forward_flag;
     int i_val;
     double f_val;
     char* string;
+    struct Param * param_list;
 }
 
 /* Token without return */
@@ -78,7 +89,7 @@ int forward_flag;
 
 /* Nonterminal with return, which need to sepcify type */
 %type <i_val> type
-%type <string> parameter_list parameter
+%type <param_list> parameter_list parameter
 /* Yacc will start at this nonterminal */
 %start program
 
@@ -98,19 +109,20 @@ program_body
 
 function
     : type ID LB parameter_list RB block_body {
-        if(!forward_flag) {
-            if(!lookup_symbol(scope, $2, FUNCTION)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
-                strcpy($4, "");
-                scope_index[scope]++;
+        if(!lookup_symbol(scope, $2, FUNCTION)) {
+            char * attribute_str;
+            if($4 != NULL) {
+                loopParam(&attribute_str, $4);
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute_str, 0);
             } else {
-                semantic_flag = 1;
-                strcpy(error_str, "Redeclared function ");
-                strcat(error_str, $2);
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, "", 0);                
             }
+            scope_index[scope]++;
+        } else if(lookup_symbol(scope, $2, FUNCTION) == 1) {
+            semantic_flag = 1;
+            strcpy(error_str, "Redeclared function ");
+            strcat(error_str, $2);
         }
-        strcpy($4, "");
-        forward_flag = 0;
     }
 ;
 
@@ -176,22 +188,26 @@ printf_statement
 function_declaration
     : type ID LB parameter_list RB SEMICOLON {
         if(!lookup_symbol(scope, $2, FUNCTION)) {
-            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4);
-            strcpy($4, "");
+            char * attribute_str;
+            if($4 != NULL) {
+                loopParam(&attribute_str, $4);
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, attribute_str, 1);
+            } else {
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, "", 1);                
+            }
             scope_index[scope]++;
         } else {
             semantic_flag = 1;
             strcpy(error_str, "Redeclared function ");
             strcat(error_str, $2);
         }
-        forward_flag = 1;
     }
 ;
 
 variable_declaration
     : type ID SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "");
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -201,7 +217,7 @@ variable_declaration
         }
     | type ID ASGN expression SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "");
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -238,39 +254,39 @@ expression
 ;
 
 parameter_list
-    : parameter { $$ = strdup($1); }
+    : parameter { $$ = $1; }
     | parameter_list COMMA parameter {
-            char * tmp;
-            tmp = strdup(", ");
-            strcat(tmp, $3);
-            strcat($1, tmp);
+            insertParam(&$1, $3);
             $$ = $1;
-        }
-    | { strcat($$, ""); }
+        } 
+    | { $$ = NULL; }
 ;
 
 parameter
     : type ID {
-        if(!forward_flag) insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "");
+        struct Param * param = (struct Param*)malloc(sizeof(struct Param));
+        param->name = strdup($2);
+        param->type = $1;
+        param->next = NULL;
         switch($1) {
             case VOID:
-                $$ = strdup("void");
+                param->attribute = strdup("void");
                 break;
             case FLOAT:
-                $$ = strdup("float");
+                param->attribute = strdup("float");
                 break;
             case INT:
-                $$ = strdup("int");
+                param->attribute = strdup("int");
                 break;
             case STRING:
-                $$ = strdup("string");
+                param->attribute = strdup("string");
                 break;
             case BOOL:
-                $$ = strdup("bool");
+                param->attribute = strdup("bool");
                 break;
             default: break;
         }
-        scope_index[scope+1]++;
+        $$ = param;
     }
 ;
 
@@ -423,7 +439,59 @@ void custom_yyerror(char *s)
     printf("\n|-----------------------------------------------|\n\n");
 }
 
-void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute)
+void insertParam(struct Param ** head_ref, struct Param * new_param) {
+    struct Param *last = *head_ref;
+    if (*head_ref == NULL) 
+    {  
+        *head_ref = new_param; 
+        return; 
+    }   
+       
+    while (last->next != NULL) 
+        last = last->next; 
+   
+    last->next = new_param; 
+    return;   
+}
+
+void loopParam(char ** attribute_str, struct Param * head) {
+    struct Param * tmp = head;
+    int i = 0;
+    if(head == NULL) return;
+    while(tmp->next != NULL) {
+        if(!i) { *attribute_str = strdup(tmp->attribute);}
+        else {
+            strcat(*attribute_str, ", ");
+            strcat(*attribute_str, tmp->attribute);
+        }
+        if(lookup_symbol(scope+1, tmp->name, PARAMETER)) {
+            semantic_flag = 1;
+            strcpy(error_str, "Redeclared variable ");
+            strcat(error_str, tmp->name);
+        } else {
+            insert_symbol(&table[scope+1], scope_index[scope+1], tmp->name, PARAMETER, tmp->type, scope+1, "", 0);
+        }
+        scope_index[scope+1]++;
+        tmp = tmp->next;
+        i++;
+    }
+    if(!i){ *attribute_str = strdup(tmp->attribute); }
+    else {
+        strcat(*attribute_str, ", ");
+        strcat(*attribute_str, tmp->attribute);
+    }
+    if(lookup_symbol(scope + 1, tmp->name, PARAMETER)) {
+        semantic_flag = 1;
+        strcpy(error_str, "Redeclared variable ");
+        strcat(error_str, tmp->name);
+    } else {
+        insert_symbol(&table[scope+1], scope_index[scope+1], tmp->name, PARAMETER, tmp->type, scope+1, "", 0);
+    }
+    scope_index[scope+1]++;
+    tmp = tmp->next;
+}
+
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag)
 {
     Node *last = *head_ref;
     Node * new_node = (Node *)malloc(sizeof(Node));
@@ -433,7 +501,8 @@ void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int t
     new_node->type = type;
     new_node->scope = scope;
     new_node->attribute = strdup(attribute);
-    new_node->next = NULL; 
+    new_node->func_flag = func_flag;
+    new_node->next = NULL;
   
     if (*head_ref == NULL) 
     {  
@@ -462,13 +531,19 @@ int lookup_symbol(int scope, char * name, kindEnum kind)
             Node* tmp = table[i];
             while(tmp->next != NULL) {
                 if(!strcmp(tmp->name, name) && (tmp->kind == kind || tmp->kind==PARAMETER)) {
-                    flag = 1;
+                    if(tmp->func_flag == 1)
+                        flag = 2;
+                    else 
+                        flag = 1;
                     break;
                 }
                 tmp = tmp->next;
             }
             if(!strcmp(tmp->name, name) && (tmp->kind == kind || tmp->kind==PARAMETER)) {
-                flag = 1;
+                if(tmp->func_flag == 1)
+                    flag = 2;
+                else 
+                    flag = 1;
                 break;
             }
         }

@@ -241,9 +241,9 @@ right_brace (70)
     on left: 35, on right: 33
 expression (71)
     on left: 36 37, on right: 20 22 23 28 29 30 31 32 87
-parameter_list <string> (72)
+parameter_list <param_list> (72)
     on left: 38 39 40, on right: 6 26 39
-parameter <string> (73)
+parameter <param_list> (73)
     on left: 41, on right: 38 39
 type <i_val> (74)
     on left: 42 43 44 45 46, on right: 6 26 27 28 41
