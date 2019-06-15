@@ -387,12 +387,24 @@ constant
 int main(int argc, char** argv)
 {
     yylineno = 0;
-        
+
+    file = fopen("compiler_hw3.j","w");
+
+    fprintf(file,   ".class public compiler_hw3\n"
+                    ".super java/lang/Object\n"
+                    ".method public static main([Ljava/lang/String;)V\n");
+
     yyparse();
     if(!syntactic_flag) {
         dump_symbol(0);
         printf("\nTotal lines: %d \n",yylineno);
     }
+
+    fprintf(file, "\treturn\n"
+                  ".end method\n");
+
+    fclose(file);
+
     return 0;
 }
 

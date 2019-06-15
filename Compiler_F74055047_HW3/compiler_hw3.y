@@ -1,39 +1,88 @@
 /*	Definition section */
 %{
-#include "xxxx.h" // include header if needed
-
-extern int yylineno;
-extern int yylex();
-extern char *yytext; // Get current token from lex
-extern char buf[BUF_SIZE]; // Get current code line from lex
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 FILE *file; // To generate .j file for Jasmin
 
-void yyerror(char *s);
+typedef enum {
+    PARAMETER, FUNCTION, VARIABLE
+} kindEnum;
 
-/* symbol table functions */
-int lookup_symbol();
-void create_symbol_table();
-void free_symbol_table();
-void insert_symbol();
-void dump_symbol();
+typedef struct Node {
+    int index;
+    char * name;
+    kindEnum kind;
+    int type;
+    int scope;
+    char * attribute;
+    int func_flag;
+    struct Node * next;
+} Node;
 
-/* code generation functions, just an example! */
-void gencode_function();
+int scope;
+
+Node * table[100] = { NULL };
+
+int scope_index[100];
+
+extern int yylineno;
+extern int yylex();
+extern char* yytext;   // Get current token from lex
+extern char buf[256];  // Get current code line from lex
+
+/* Symbol table function - you can add new function if needed. */
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag);
+void enum_to_string(char * stringkind, char * stringtype, int kind, int type);
+void dump_symbol(int scope);
+int lookup_symbol(int scope, char * name, kindEnum kind);
+void custom_yyerror(char *s);
+
+extern int dump_flag;
+extern void yyerror(char * s);
+extern int semantic_flag;
+int syntactic_flag;
+char error_str[100];
+int forward_flag;
 
 %}
 
+/* Use variable or self-defined structure to represent
+ * nonterminal and token type
+ */
 %union {
+    int i_val;
+    double f_val;
+    char* string;
 }
 
 /* Token without return */
-%token INC DEC
-%token MTE LTE EQ NE
-%token ADDASGN SUBASGN MULASGN DIVASGN MODASGN
-%token PRINT IF ELSE
-%token ID SEMICOLON
-%token I_CONST F_CONST STRING
+%token PRINT
+%token IF ELSE WHILE
+%token SEMICOLON COMMA QUOTA
+%token ADD SUB MUL DIV MOD INC DEC
+%token MT LT MTE LTE EQ NE
+%token ASGN ADDASGN SUBASGN MULASGN DIVASGN MODASGN
+%token AND OR NOT
+%token LB RB LCB RCB LSB RSB
+%token VOID FLOAT INT STRING BOOL
+%token RETURN
+%token CPP_COMMENT C_COMMENT
 
+/* Token with return, which need to sepcify type */
+%token <i_val> I_CONST
+%token <f_val> F_CONST
+%token <string> STR_CONST
+%token <i_val> TRUE
+%token <i_val> FALSE
+%token <string> ID
+// code added
+
+
+/* Nonterminal with return, which need to sepcify type */
+%type <i_val> type
+%type <string> parameter_list parameter
 /* Yacc will start at this nonterminal */
 %start program
 
@@ -338,8 +387,6 @@ constant
 %%
 
 /* C code section */
-
-/* C code section */
 int main(int argc, char** argv)
 {
     yylineno = 0;
@@ -351,7 +398,10 @@ int main(int argc, char** argv)
                     ".method public static main([Ljava/lang/String;)V\n");
 
     yyparse();
-    printf("\nTotal lines: %d \n",yylineno);
+    if(!syntactic_flag) {
+        dump_symbol(0);
+        printf("\nTotal lines: %d \n",yylineno);
+    }
 
     fprintf(file, "\treturn\n"
                   ".end method\n");
@@ -363,19 +413,150 @@ int main(int argc, char** argv)
 
 void yyerror(char *s)
 {
+    syntactic_flag = 1;
+    if(semantic_flag) {
+        custom_yyerror(error_str);
+    }
     printf("\n|-----------------------------------------------|\n");
-    printf("| Error found in line %d: %s\n", yylineno, buf);
+    printf("| Error found in line %d: %s\n", yylineno + 1, buf);
     printf("| %s", s);
-    printf("\n| Unmatched token: %s", yytext);
-    printf("\n|-----------------------------------------------|\n");
-    exit(-1);
+    printf("\n|-----------------------------------------------|\n\n");
 }
 
-/* stmbol table functions */
-void create_symbol() {}
-void insert_symbol() {}
-int lookup_symbol() {}
-void dump_symbol() {}
+void custom_yyerror(char *s)
+{
+    if(syntactic_flag) {
+        printf("%d: %s\n", yylineno + 1, buf);
+        printf("\n|-----------------------------------------------|\n");
+        printf("| Error found in line %d: %s\n", yylineno + 1, buf);
+    } else {
+        // it is because the normal semantic error is done in the lex
+        printf("%d: %s", yylineno, buf);
+        printf("\n|-----------------------------------------------|\n");
+        printf("| Error found in line %d: %s", yylineno, buf);
+    }
+    printf("| %s", s);
+    printf("\n|-----------------------------------------------|\n\n");
+}
 
-/* code generation functions */
-void gencode_function() {}
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag)
+{
+    Node *last = *head_ref;
+    Node * new_node = (Node *)malloc(sizeof(Node));
+    new_node->index = index;
+    new_node->name = name;
+    new_node->kind = kind;
+    new_node->type = type;
+    new_node->scope = scope;
+    new_node->func_flag = func_flag;
+    new_node->attribute = strdup(attribute);
+    new_node->next = NULL; 
+  
+    if (*head_ref == NULL) 
+    {  
+        *head_ref = new_node; 
+        return; 
+    }   
+       
+    while (last->next != NULL) 
+        last = last->next; 
+   
+    last->next = new_node; 
+    return;   
+}
+
+int lookup_symbol(int scope, char * name, kindEnum kind)
+{   
+    int i = 0;
+    int flag = 0;
+    while(!flag && i <= scope) {
+        if(flag == 1) return flag;
+        if(table[i] == NULL) {
+            i++;
+            continue;
+        } 
+        else {
+            Node* tmp = table[i];
+            while(tmp->next != NULL) {
+                if(!strcmp(tmp->name, name) && (tmp->kind == kind || tmp->kind==PARAMETER)) {
+                    if(tmp->func_flag == 1) {
+                        flag = 2;
+                    } else {
+                        flag = 1;
+                    }
+                    break;
+                }
+                tmp = tmp->next;
+            }
+            if(!strcmp(tmp->name, name) && (tmp->kind == kind || tmp->kind==PARAMETER)) {
+                if(tmp->func_flag == 1) {
+                    flag = 2;
+                } else {
+                    flag = 1;
+                }
+                flag = 1;
+                break;
+            }
+        }
+        i++;
+    }
+    return flag;
+}
+
+void dump_symbol(int scope) {
+    char stringkind[100];
+    char stringtype[100];
+    if(table[scope] == NULL) {
+        return;
+    }
+    printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
+           "Index", "Name", "Kind", "Type", "Scope", "Attribute");
+    Node * tmp = table[scope];
+    while(tmp->next != NULL) {
+        enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
+        printf("%-10d%-10s%-12s%-10s%-10d%-s\n",
+           tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
+        free(tmp);
+        tmp = tmp->next;
+    }
+    enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
+    printf("%-10d%-10s%-12s%-10s%-10d%-s\n\n",
+        tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
+    free(tmp);
+    table[scope] = NULL;
+    scope_index[scope] = 0;
+}
+
+void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
+{
+    switch(kind) {
+        case PARAMETER:
+            strcpy(stringkind, "parameter");
+            break;
+        case FUNCTION:
+            strcpy(stringkind, "function");
+            break;
+        case VARIABLE:          
+            strcpy(stringkind, "variable");
+            break;
+        default: break;
+    }
+    switch(type) {
+        case VOID:
+            strcpy(stringtype, "void");
+            break;
+        case FLOAT:
+            strcpy(stringtype, "float");
+            break;
+        case INT:
+            strcpy(stringtype, "int");
+            break;
+        case STRING:
+            strcpy(stringtype, "string");
+            break;
+        case BOOL:
+            strcpy(stringtype, "bool");
+            break;
+        default: break;
+    }
+}

@@ -10,10 +10,10 @@ all: y.tab.o lex.yy.o
 %.o: %.c
 	@${CC} -c $<
 
-lex.yy.c:
+lex.yy.c: ${FNAME}.l
 	@lex ${FNAME}.l
 
-y.tab.c:
+y.tab.c: ${FNAME}.y
 	@yacc ${YFLAG} ${FNAME}.y
 
 test:
