@@ -250,7 +250,7 @@ parameter_list
             strcat($1, tmp);
             $$ = $1;
         }
-    | { strcat($$, ""); }
+    | { $$ = strdup(""); }
 ;
 
 parameter
