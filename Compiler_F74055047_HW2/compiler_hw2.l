@@ -35,89 +35,89 @@ id			{letter}+({letter}|{digit})*
 %%
 
  /* Arithmetic */
-"+"     { CONCAT; return(ADD); }
-"-" 	{ CONCAT; return(SUB); }
-"*" 	{ CONCAT; return(MUL); }
-"/" 	{ CONCAT; return(DIV); }
-"%"     { CONCAT; return(MOD); }
-"++"    { CONCAT; return(INC); }
-"--"    { CONCAT; return(DEC); }
+"+"     { CONCAT; return(ADD); printf(" "); }
+"-" 	{ CONCAT; return(SUB); printf(" "); }
+"*" 	{ CONCAT; return(MUL); printf(" "); }
+"/" 	{ CONCAT; return(DIV); printf(" "); }
+"%"     { CONCAT; return(MOD); printf(" "); }
+"++"    { CONCAT; return(INC); printf(" "); }
+"--"    { CONCAT; return(DEC); printf(" "); }
 
  /* Relational */
-">"		{ CONCAT; return(MT); }
-"<"		{ CONCAT; return(LT); }
-">="	{ CONCAT; return(MTE); }
-"<="	{ CONCAT; return(LTE); }
-"=="	{ CONCAT; return(EQ); }
-"!="	{ CONCAT; return(NE); }
+">"		{ CONCAT; return(MT); printf(" "); }
+"<"		{ CONCAT; return(LT); printf(" "); }
+">="	{ CONCAT; return(MTE); printf(" "); }
+"<="	{ CONCAT; return(LTE); printf(" "); }
+"=="	{ CONCAT; return(EQ); printf(" "); }
+"!="	{ CONCAT; return(NE); printf(" "); }
 
  /* Assignment */
-"="		{ CONCAT; return(ASGN); }
-"+="	{ CONCAT; return(ADDASGN); }
-"-="	{ CONCAT; return(SUBASGN); }
-"*="	{ CONCAT; return(MULASGN); }
-"/="	{ CONCAT; return(DIVASGN); }
-"%="	{ CONCAT; return(MODASGN); }
+"="		{ CONCAT; return(ASGN); printf(" "); }
+"+="	{ CONCAT; return(ADDASGN); printf(" "); }
+"-="	{ CONCAT; return(SUBASGN); printf(" "); }
+"*="	{ CONCAT; return(MULASGN); printf(" "); }
+"/="	{ CONCAT; return(DIVASGN); printf(" "); }
+"%="	{ CONCAT; return(MODASGN); printf(" "); }
 
  /* Logical */
-"&&"	{ CONCAT; return(AND); }
-"||"	{ CONCAT; return(OR); }
-"!"		{ CONCAT; return(NOT); }
+"&&"	{ CONCAT; return(AND); printf(" "); }
+"||"	{ CONCAT; return(OR); printf(" "); }
+"!"		{ CONCAT; return(NOT); printf(" "); }
 
  /* Delimiters */
-"("		{ CONCAT; return(LB); }
-")"		{ CONCAT; return(RB); }
-"{"		{ CONCAT; return(LCB); }
-"}"		{ CONCAT; return(RCB); }
-"["		{ CONCAT; return(LSB); }
-"]"		{ CONCAT; return(RSB); }
-","		{ CONCAT; return(COMMA); }
+"("		{ CONCAT; return(LB); printf(" "); }
+")"		{ CONCAT; return(RB); printf(" "); }
+"{"		{ CONCAT; return(LCB); printf(" "); }
+"}"		{ CONCAT; return(RCB); printf(" "); }
+"["		{ CONCAT; return(LSB); printf(" "); }
+"]"		{ CONCAT; return(RSB); printf(" "); }
+","		{ CONCAT; return(COMMA); printf(" "); }
 
  /* Print Keywords */	
-"print"		{ CONCAT; return(PRINT); }
+"print"		{ CONCAT; return(PRINT); printf(" "); printf(" "); }
 
  /* Condition and Loop Keywords */
-"if"		{ CONCAT; return(IF); }
-"else"		{ CONCAT; return(ELSE); }
-"while"		{ CONCAT; return(WHILE); }
+"if"		{ CONCAT; return(IF); printf(" "); }
+"else"		{ CONCAT; return(ELSE); printf(" "); }
+"while"		{ CONCAT; return(WHILE); printf(" "); }
 
  /* Declaration Keywords */
-"void"		{ CONCAT; return(VOID); }
-"int"		{ CONCAT; return(INT); }
-"float"  	{ CONCAT; return(FLOAT); }
-"string"  	{ CONCAT; return(STRING); }
-"bool"  	{ CONCAT; return(BOOL); }
+"void"		{ CONCAT; return(VOID); printf(" "); }
+"int"		{ CONCAT; return(INT); printf(" "); }
+"float"  	{ CONCAT; return(FLOAT); printf(" "); }
+"string"  	{ CONCAT; return(STRING); printf(" "); }
+"bool"  	{ CONCAT; return(BOOL); printf(" "); }
 
  /* boolean Keywords */
-"true"      { CONCAT; yylval.i_val = 1; return(TRUE); }
-"false"     { CONCAT; yylval.i_val = 0; return(FALSE); }
-"return"    { CONCAT; return(RETURN); }
+"true"      { CONCAT; yylval.i_val = 1; return(TRUE); printf(" "); }
+"false"     { CONCAT; yylval.i_val = 0; return(FALSE); printf(" "); }
+"return"    { CONCAT; return(RETURN); printf(" "); }
 
  /* String Constant */
-\"				        { BEGIN STRING_STATE; CONCAT; return(QUOTA);}
-<STRING_STATE>\"		{ BEGIN INITIAL; CONCAT; return(QUOTA);}
-<STRING_STATE>[^"]*		{ CONCAT; return(STR_CONST); }
+\"				        { BEGIN STRING_STATE; CONCAT; return(QUOTA); printf(" "); }
+<STRING_STATE>\"		{ BEGIN INITIAL; CONCAT; return(QUOTA); printf(" "); }
+<STRING_STATE>[^"]*		{ CONCAT; return(STR_CONST); printf(" "); }
 
  /* Number Constant */
-{integer}	{ CONCAT; yylval.i_val = atoi(yytext); return(I_CONST); }
-{float}	    { CONCAT; yylval.f_val = atof(yytext); return(F_CONST); }
+{integer}	{ CONCAT; yylval.i_val = atoi(yytext); return(I_CONST); printf(" "); }
+{float}	    { CONCAT; yylval.f_val = atof(yytext); return(F_CONST); printf(" "); }
 
  /* C type Comment */
-"/*"				{ BEGIN COMMENT; CONCAT; }
+"/*"				{ BEGIN COMMENT; CONCAT; printf(" "); }
 <COMMENT>[^*\n]+	{ CONCAT; }
-<COMMENT>\n			{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,"");}
+<COMMENT>\n			{ CONCAT; printf("%d: %s", yylineno, buf); strcpy(buf,""); printf(" "); }
 <COMMENT>"*"		{ CONCAT;  }
-<COMMENT>"*/"		{  BEGIN INITIAL;CONCAT;}
+<COMMENT>"*/"		{  BEGIN INITIAL;CONCAT; printf(" "); }
 
  /* C++ type Comment */
 \/\/.*	{ CONCAT; }
 
  /* Variable ID */
- {id}       { CONCAT; yylval.string = strdup(yytext); return(ID); }
+ {id}       { CONCAT; yylval.string = strdup(yytext); return(ID); printf(" "); }
 
  /* others */
 
-[;]         { CONCAT; return(SEMICOLON); }
+[;]         { CONCAT; return(SEMICOLON); printf(" "); }
 [\n]        { 
                 CONCAT;
                 if(semantic_flag) {

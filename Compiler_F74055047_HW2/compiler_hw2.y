@@ -92,14 +92,19 @@ program
 ;
 
 program_body
-    : function_declaration
-    | variable_declaration
+    : function_declaration { printf("function_declaration\n"); }
+    | variable_declaration { printf("variable_declaration\n"); }
     | function
 ;
 
 function
     : type ID LB parameter_list RB block_body {
+        printf("function definition\n");
         if(!forward_flag) {
+            printf("Scope %d\n", scope);
+            printf("ID %s\n", $2);
+            printf("work? %d\n", lookup_symbol(scope, $2, FUNCTION));
+            printf("parameter_list %s\n", $4);
             if(!lookup_symbol(scope, $2, FUNCTION)) {
                 insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 0);
                 strcpy($4, "");
@@ -120,12 +125,12 @@ stats
     |
 
 stat
-    : while_statement
-    | if_statement 
-    | variable_declaration
-    | printf_statement 
-    | expression_statement 
-    | return_statement 
+    : while_statement { printf("while_statement\n"); }
+    | if_statement { printf("if_statement\n"); }
+    | variable_declaration { printf("variable_declaration\n"); }
+    | printf_statement { printf("printf_statement\n"); }
+    | expression_statement { printf("expression_statement\n"); }
+    | return_statement { printf("return_statement\n"); }
 ;
 
 function_call
@@ -222,7 +227,7 @@ if_statement
 ;
 
 block_body
-    : left_brace stats right_brace
+    : left_brace stats right_brace { printf("block_body\n"); }
 ;
 
 left_brace
@@ -247,7 +252,7 @@ parameter_list
             strcat($1, tmp);
             $$ = $1;
         }
-    | { strcat($$, ""); }
+    | { $$ = strdup(""); }
 ;
 
 parameter

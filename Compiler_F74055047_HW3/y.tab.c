@@ -1606,7 +1606,7 @@ yyreduce:
 
   case 41:
 #line 253 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcat((yyval.string), ""); }
+    { (yyval.string) = strdup(""); }
 #line 1611 "y.tab.c" /* yacc.c:1652  */
     break;
 
@@ -1919,11 +1919,11 @@ int main(int argc, char** argv)
 {
     yylineno = 0;
 
-    file = fopen("compiler_hw3.j","w");
+    // file = fopen("compiler_hw3.j","w");
 
-    fprintf(file,   ".class public compiler_hw3\n"
-                    ".super java/lang/Object\n"
-                    ".method public static main([Ljava/lang/String;)V\n");
+    // fprintf(file,   ".class public compiler_hw3\n"
+    //                 ".super java/lang/Object\n"
+    //                 ".method public static main([Ljava/lang/String;)V\n");
 
     yyparse();
     if(!syntactic_flag) {
@@ -1931,10 +1931,10 @@ int main(int argc, char** argv)
         printf("\nTotal lines: %d \n",yylineno);
     }
 
-    fprintf(file, "\treturn\n"
-                  ".end method\n");
+    // fprintf(file, "\treturn\n"
+    //               ".end method\n");
 
-    fclose(file);
+    // fclose(file);
 
     return 0;
 }
