@@ -29,6 +29,12 @@ Node * table[100] = { NULL };
 
 int scope_index[100];
 
+typedef struct ID_INFO {
+    int scope;
+    int type;
+    int reg_num;
+} ID_INFO;
+
 extern int yylineno;
 extern int yylex();
 extern char* yytext;   // Get current token from lex
@@ -41,6 +47,7 @@ void dump_symbol(int scope);
 int lookup_symbol(int scope, char * name, kindEnum kind);
 void custom_yyerror(char *s);
 int lookup_reg(int stop_scope);
+ID_INFO * get_id_info(int curr_scope, char * id);
 
 extern int dump_flag;
 extern void yyerror(char * s);
@@ -195,6 +202,17 @@ printf_statement
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
                 strcat(error_str, $3);
+            } else {
+                printf("%d, %s\n", scope, $3);                
+                ID_INFO * id_info = get_id_info(scope, $3);
+                if(id_info != NULL) {
+                    printf("before it\n");                        
+                    printf("%d, %d, %d\n", id_info->type, id_info->scope, id_info->reg_num);
+                    genPrintID(id_info->reg_num);
+                    printf("after it\n");    
+                } else {
+                    printf("null?\n");
+                }
             }
         }
 ;
@@ -218,13 +236,12 @@ function_declaration
 variable_declaration
     : type ID SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
+                printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
                 int max_reg = lookup_reg(scope);
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
-                printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
-                if(scope == 0)
+                if(scope == 0) {
+                    printf("id = %s, type = %d\n", $2, $1);
                     genVarDeclr($2, $1);
-                else {
-                    genPrint("normal declaration");
                 }
                 scope_index[scope]++;
             } else {
@@ -235,12 +252,12 @@ variable_declaration
         }
     | type ID ASGN expression SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
+                printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
                 int max_reg = lookup_reg(scope);
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
-                printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
-                if(scope == 0)
+                if(scope == 0) {
                     genVarDeclrVal($2, $1, global_value);
-                else {
+                } else {
                     genPrint("ASGN");
                     genPrint("ID\n\n");
                 }
@@ -507,7 +524,7 @@ void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int t
 
 int lookup_reg(int scope)
 {
-    int max_reg = 0;
+    int max_reg = -1;
     int i;
     for(i = 1; i <= scope; i++) {
         if(table[i] != NULL) {
@@ -620,4 +637,32 @@ void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
             break;
         default: break;
     }
+}
+
+ID_INFO * get_id_info(int curr_scope, char * id)
+{
+    int i;
+    ID_INFO * the_node = NULL;
+    for(i = curr_scope; i >= 0; i--) {
+        if(table[i] != NULL) {
+            Node * tmp = table[i];
+            while(tmp->next != NULL) {
+                if(!strcmp(tmp->name, id)) {
+                    the_node = (ID_INFO *)malloc(sizeof(ID_INFO));
+                    the_node->type = tmp->type;
+                    the_node->reg_num = tmp->reg_num;
+                    the_node->scope = tmp->scope;
+                }
+                tmp = tmp->next;
+            }
+            if(!strcmp(tmp->name, id)) {
+                the_node = (ID_INFO *)malloc(sizeof(ID_INFO));
+                the_node->type = tmp->type;
+                the_node->reg_num = tmp->reg_num;
+                the_node->scope = tmp->scope;
+            }
+        }
+    }
+    printf("%d, %d, %d\n", the_node->type, the_node->scope, the_node->reg_num);
+    return the_node;
 }

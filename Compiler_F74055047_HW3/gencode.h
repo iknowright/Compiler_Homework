@@ -13,6 +13,7 @@ void genVarDeclrVal(char * id, int type, char * text);
 void genPrintConst(char * value);
 void genPrintStrConst(char * value);
 void genPrint(char * value);
+void genPrintID(int reg);
 
 
 #endif

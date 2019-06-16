@@ -4,10 +4,10 @@ void genVarDeclr(char * id, int type)
 {
     file = fopen("compiler_hw3.j","a");
     switch(type) {
-        case FLOAT:
+        case FLOAT: 
             fprintf(file, ".field public static %s F\n", id);
             break;
-        case INT:
+        case INT:   
             fprintf(file, ".field public static %s I\n", id);
             break;
         case BOOL:
@@ -84,5 +84,15 @@ void genPrint(char * value)
 {
     file = fopen("compiler_hw3.j","a");
     fprintf(file, "%s\n", value);    
+    fclose(file);
+}
+
+void genPrintID(int reg) {
+    file = fopen("compiler_hw3.j","a");
+    fprintf(file, "iload %d\n", reg);
+    fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+        "swap\n"
+    );
+    fprintf(file, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
     fclose(file);
 }
