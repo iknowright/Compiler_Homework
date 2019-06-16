@@ -79,3 +79,10 @@ void genPrintStrConst(char * value)
     fclose(file);
     return;
 }
+
+void genPrint(char * value)
+{
+    file = fopen("compiler_hw3.j","a");
+    fprintf(file, "%s\n", value);    
+    fclose(file);
+}

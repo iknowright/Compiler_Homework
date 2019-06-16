@@ -205,7 +205,8 @@ variable_declaration
             if(!lookup_symbol(scope, $2, VARIABLE)) {
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
                 printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
-                genVarDeclr($2, $1);
+                if(scope == 0)
+                    genVarDeclr($2, $1);
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -217,7 +218,8 @@ variable_declaration
             if(!lookup_symbol(scope, $2, VARIABLE)) {
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
                 printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
-                genVarDeclrVal($2, $1, global_value);
+                if(scope == 0)
+                    genVarDeclrVal($2, $1, global_value);
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -320,15 +322,15 @@ relational_expression
 
 additive_expression
     : multiplicative_expression
-    | additive_expression ADD multiplicative_expression
-    | additive_expression SUB multiplicative_expression
+    | additive_expression ADD multiplicative_expression { genPrint("ADD"); }
+    | additive_expression SUB multiplicative_expression { genPrint("SUB"); }
 ;
 
 multiplicative_expression
     : unary_expression
-    | multiplicative_expression MUL unary_expression
-    | multiplicative_expression DIV unary_expression
-    | multiplicative_expression MOD unary_expression
+    | multiplicative_expression MUL unary_expression { genPrint("MUL"); }
+    | multiplicative_expression DIV unary_expression { genPrint("DIV"); }
+    | multiplicative_expression MOD unary_expression { genPrint("MOD"); }
 ;
 
 relational_operator
@@ -341,25 +343,25 @@ relational_operator
 ;
 
 assignment_operator
-	: ASGN
-	| MULASGN
-	| DIVASGN
-	| MODASGN
-	| ADDASGN
-	| SUBASGN
+	: ASGN { genPrint("ASGN"); }
+	| MULASGN { genPrint("MULASGN"); }
+	| DIVASGN { genPrint("DIVASGN"); }
+	| MODASGN { genPrint("MODASGN"); }
+	| ADDASGN { genPrint("ADDASGN"); }
+	| SUBASGN { genPrint("SUBASGN"); }
 	;
 
 unary_expression
     : postfix_expression
-	| INC unary_expression
-	| DEC unary_expression
+	| INC unary_expression { genPrint("INC"); }
+	| DEC unary_expression { genPrint("DEC"); }
     | unary_operator unary_expression
 ;
 
 unary_operator
-    : SUB
-    | ADD
-    | NOT
+    : SUB { genPrint("SUB"); }
+    | ADD { genPrint("ADD"); }
+    | NOT { genPrint("NOT"); }
 ;
 
 
@@ -389,10 +391,10 @@ string
 ;
 
 constant
-    : I_CONST { strcpy(global_value, $1); $$ = strdup($1);}
-    | F_CONST { strcpy(global_value, $1); $$ = strdup($1);}
-    | TRUE { strcpy(global_value, $1); $$ = strdup($1);}
-    | FALSE { strcpy(global_value, $1); $$ = strdup($1);}
+    : I_CONST { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
+    | F_CONST { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
+    | TRUE { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
+    | FALSE { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
 ;
 
 %%
