@@ -1069,12 +1069,12 @@ YY_RULE_SETUP
 case 39:
 YY_RULE_SETUP
 #line 93 "compiler_hw3.l"
-{ CONCAT; yylval.i_val = 1; return(TRUE); }
+{ CONCAT; yylval.string = strdup("1"); return(TRUE); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 94 "compiler_hw3.l"
-{ CONCAT; yylval.i_val = 0; return(FALSE); }
+{ CONCAT; yylval.string = strdup("0"); return(FALSE); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
@@ -1102,12 +1102,12 @@ YY_RULE_SETUP
 case 45:
 YY_RULE_SETUP
 #line 103 "compiler_hw3.l"
-{ CONCAT; yylval.i_val = atoi(yytext); return(I_CONST); }
+{ CONCAT; yylval.string = yytext; return(I_CONST); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 104 "compiler_hw3.l"
-{ CONCAT; yylval.f_val = atof(yytext); return(F_CONST); }
+{ CONCAT; yylval.string = yytext; return(F_CONST); }
 	YY_BREAK
 /* C type Comment */
 case 47:

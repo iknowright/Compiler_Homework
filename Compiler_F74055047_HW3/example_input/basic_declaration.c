@@ -7,3 +7,6 @@ int b;
 
 //     return;
 // }
+int main() {
+    print(3.145);
+}

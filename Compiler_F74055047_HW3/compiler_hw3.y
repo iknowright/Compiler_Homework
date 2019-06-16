@@ -88,6 +88,7 @@ char global_value[100];
 // %type <string> unary_expression constant primary_expression postfix_expression
 // %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
 // %type <string> unary_operator
+%type <string> constant
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -173,7 +174,8 @@ return_statement
     : RETURN expression SEMICOLON
 
 printf_statement
-    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON
+    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON {  }
+    | PRINT LB constant RB SEMICOLON { genPrintConst($3); }
     | PRINT LB ID RB SEMICOLON {          
             if(!lookup_symbol(scope, $3, VARIABLE)) {
                 semantic_flag = 1;
@@ -387,10 +389,10 @@ string
 ;
 
 constant
-    : I_CONST { printf("%d ", $1); strcpy(global_value, yytext); printf("%s\n", global_value); }
-    | F_CONST { printf("%f ", $1); } 
-    | TRUE { printf("%d ", $1); } 
-    | FALSE { printf("%d ", $1); } 
+    : I_CONST { strcpy(global_value, yytext); $$ = strdup(yytext);}
+    | F_CONST { strcpy(global_value, yytext); $$ = strdup(yytext);}
+    | TRUE { strcpy(global_value, yytext); $$ = strdup(yytext);}
+    | FALSE { strcpy(global_value, yytext); $$ = strdup(yytext);}
 ;
 
 %%

@@ -2,5 +2,7 @@
 .super java/lang/Object
 .field public static a I = 6
 .field public static b I
-	return
-.end method
+ldc 3.145
+getstatic java/lang/System/out Ljava/io/PrintStream;
+swap
+invokevirtual java/io/PrintStream/println(F)V

@@ -37,3 +37,29 @@ void genVarDeclrVal(char * id, int type, char * value)
     fclose(file);
     return;
 }
+
+void genPrintConst(char * value)
+{
+    file = fopen("compiler_hw3.j","a");
+    if(!strcmp(value, "0")) {
+        fprintf(file, "ldc %s\n", value);
+        fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            "swap\n"
+        );
+        fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
+    } else if(atof(value) != 0.0) {
+        printf("%s\n", value);
+        fprintf(file, "ldc %s\n", value);
+        fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            "swap\n"
+        );
+        fprintf(file, "invokevirtual java/io/PrintStream/println(F)V\n");
+    } else if(atoi(value) != 0) {
+        fprintf(file, "ldc %s\n", value);
+        fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            "swap\n"
+        );
+        fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
+    }
+    fclose(file);
+}

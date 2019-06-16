@@ -89,8 +89,8 @@ id			{letter}+({letter}|{digit})*
 "bool"  	{ CONCAT; return(BOOL); }
 
  /* boolean Keywords */
-"true"      { CONCAT; yylval.i_val = 1; return(TRUE); }
-"false"     { CONCAT; yylval.i_val = 0; return(FALSE); }
+"true"      { CONCAT; yylval.string = strdup("1"); return(TRUE); }
+"false"     { CONCAT; yylval.string = strdup("0"); return(FALSE); }
 "return"    { CONCAT; return(RETURN); }
 
  /* String Constant */
@@ -99,8 +99,8 @@ id			{letter}+({letter}|{digit})*
 <STRING_STATE>[^"]*		{ CONCAT; return(STR_CONST); }
 
  /* Number Constant */
-{integer}	{ CONCAT; yylval.i_val = atoi(yytext); return(I_CONST); }
-{float}	    { CONCAT; yylval.f_val = atof(yytext); return(F_CONST); }
+{integer}	{ CONCAT; yylval.string = yytext; return(I_CONST); }
+{float}	    { CONCAT; yylval.string = yytext; return(F_CONST); }
 
  /* C type Comment */
 "/*"				{ BEGIN COMMENT; CONCAT; }
