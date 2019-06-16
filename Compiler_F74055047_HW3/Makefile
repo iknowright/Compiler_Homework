@@ -4,9 +4,8 @@ FNAME = compiler_hw3
 PARSER = myparser
 OBJECT = lex.yy.c y.tab.c y.tab.h ${FNAME}.j ${FNAME}.class
 
-all: y.tab.o lex.yy.o
-	@${CC} -o ${PARSER} y.tab.o lex.yy.o
-
+all: y.tab.o lex.yy.o gencode.o
+	@${CC} -o ${PARSER} $^
 %.o: %.c
 	@${CC} -c $<
 

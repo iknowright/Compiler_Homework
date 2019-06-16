@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "gencode.h"
 
 FILE *file; // To generate .j file for Jasmin
 
@@ -46,6 +47,7 @@ int syntactic_flag;
 char error_str[100];
 int forward_flag;
 
+char global_value[100];
 %}
 
 /* Use variable or self-defined structure to represent
@@ -71,11 +73,11 @@ int forward_flag;
 %token CPP_COMMENT C_COMMENT
 
 /* Token with return, which need to sepcify type */
-%token <i_val> I_CONST
-%token <f_val> F_CONST
+%token <string> I_CONST
+%token <string> F_CONST
 %token <string> STR_CONST
-%token <i_val> TRUE
-%token <i_val> FALSE
+%token <string> TRUE
+%token <string> FALSE
 %token <string> ID
 // code added
 
@@ -83,6 +85,10 @@ int forward_flag;
 /* Nonterminal with return, which need to sepcify type */
 %type <i_val> type
 %type <string> parameter_list parameter
+// %type <string> unary_expression constant primary_expression postfix_expression
+// %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
+// %type <string> unary_operator
+
 /* Yacc will start at this nonterminal */
 %start program
 
@@ -196,6 +202,8 @@ variable_declaration
     : type ID SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
+                printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
+                genVarDeclr($2, $1);
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -206,6 +214,8 @@ variable_declaration
     | type ID ASGN expression SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
+                printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
+                genVarDeclrVal($2, $1, global_value);
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -376,12 +386,11 @@ string
     : QUOTA STR_CONST QUOTA
 ;
 
-
 constant
-    : I_CONST 
-    | F_CONST
-    | TRUE
-    | FALSE
+    : I_CONST { printf("%d ", $1); strcpy(global_value, yytext); printf("%s\n", global_value); }
+    | F_CONST { printf("%f ", $1); } 
+    | TRUE { printf("%d ", $1); } 
+    | FALSE { printf("%d ", $1); } 
 ;
 
 %%
@@ -395,18 +404,16 @@ int main(int argc, char** argv)
 
     fprintf(file,   ".class public compiler_hw3\n"
                     ".super java/lang/Object\n"
-                    ".method public static main([Ljava/lang/String;)V\n");
+                    // ".method public static main([Ljava/lang/String;)V\n"
+                    );
+
+    fclose(file);
 
     yyparse();
     if(!syntactic_flag) {
         dump_symbol(0);
         printf("\nTotal lines: %d \n",yylineno);
     }
-
-    fprintf(file, "\treturn\n"
-                  ".end method\n");
-
-    fclose(file);
 
     return 0;
 }

@@ -156,7 +156,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 54 "compiler_hw3.y" /* yacc.c:1921  */
+#line 56 "compiler_hw3.y" /* yacc.c:1921  */
 
     int i_val;
     double f_val;
