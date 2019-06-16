@@ -20,6 +20,7 @@ typedef struct Node {
     char * attribute;
     int func_flag;
     struct Node * next;
+    int reg_num;
 } Node;
 
 int scope;
@@ -34,11 +35,12 @@ extern char* yytext;   // Get current token from lex
 extern char buf[256];  // Get current code line from lex
 
 /* Symbol table function - you can add new function if needed. */
-void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag);
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag, int reg_num);
 void enum_to_string(char * stringkind, char * stringtype, int kind, int type);
 void dump_symbol(int scope);
 int lookup_symbol(int scope, char * name, kindEnum kind);
 void custom_yyerror(char *s);
+int lookup_reg(int stop_scope);
 
 extern int dump_flag;
 extern void yyerror(char * s);
@@ -48,6 +50,8 @@ char error_str[100];
 int forward_flag;
 
 char global_value[100];
+
+char statement_stack[100][100];
 %}
 
 /* Use variable or self-defined structure to represent
@@ -117,7 +121,8 @@ function
     : type ID LB parameter_list RB block_body {
         if(!forward_flag) {
             if(!lookup_symbol(scope, $2, FUNCTION)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 0);
+                int max_reg = lookup_reg(scope);
+                insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 0, max_reg + 1);
                 strcpy($4, "");
                 scope_index[scope]++;
             } else if(lookup_symbol(scope, $2, FUNCTION) == 1){
@@ -197,7 +202,8 @@ printf_statement
 function_declaration
     : type ID LB parameter_list RB SEMICOLON {
         if(!lookup_symbol(scope, $2, FUNCTION)) {
-            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 1);
+            int max_reg = lookup_reg(scope);
+            insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 1, max_reg + 1);
             strcpy($4, "");
             scope_index[scope]++;
         } else {
@@ -212,7 +218,8 @@ function_declaration
 variable_declaration
     : type ID SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
+                int max_reg = lookup_reg(scope);
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
                 printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
                 if(scope == 0)
                     genVarDeclr($2, $1);
@@ -228,7 +235,8 @@ variable_declaration
         }
     | type ID ASGN expression SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0);
+                int max_reg = lookup_reg(scope);
+                insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
                 printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
                 if(scope == 0)
                     genVarDeclrVal($2, $1, global_value);
@@ -285,7 +293,10 @@ parameter_list
 
 parameter
     : type ID {
-        if(!forward_flag) insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "", 0);
+        if(!forward_flag){
+            int max_reg = lookup_reg(scope + 1);
+            insert_symbol(&table[scope+1], scope_index[scope+1], $2, PARAMETER, $1, scope+1, "", 0, max_reg + 1);
+        }
         switch($1) {
             case VOID:
                 $$ = strdup("void");
@@ -467,7 +478,7 @@ void custom_yyerror(char *s)
     printf("\n|-----------------------------------------------|\n\n");
 }
 
-void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag)
+void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int type, int scope, char * attribute, int func_flag, int reg_num)
 {
     Node *last = *head_ref;
     Node * new_node = (Node *)malloc(sizeof(Node));
@@ -478,6 +489,7 @@ void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int t
     new_node->scope = scope;
     new_node->func_flag = func_flag;
     new_node->attribute = strdup(attribute);
+    new_node->reg_num = reg_num;
     new_node->next = NULL; 
   
     if (*head_ref == NULL) 
@@ -491,6 +503,27 @@ void insert_symbol(Node** head_ref, int index, char * name, kindEnum kind, int t
    
     last->next = new_node; 
     return;   
+}
+
+int lookup_reg(int scope)
+{
+    int max_reg = 0;
+    int i;
+    for(i = 1; i <= scope; i++) {
+        if(table[i] != NULL) {
+            Node* tmp = table[i];
+            while(tmp->next != NULL) {
+                if(tmp->reg_num > max_reg) {
+                    max_reg = tmp->reg_num;
+                }
+                tmp = tmp->next;
+            }
+            if(tmp->reg_num > max_reg) {
+                max_reg = tmp->reg_num;
+            }
+        }
+    }
+    return max_reg;
 }
 
 int lookup_symbol(int scope, char * name, kindEnum kind)
@@ -537,19 +570,19 @@ void dump_symbol(int scope) {
     if(table[scope] == NULL) {
         return;
     }
-    printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
-           "Index", "Name", "Kind", "Type", "Scope", "Attribute");
+    printf("\n%-10s%-10s%-12s%-10s%-10s%-10s%-10s\n\n",
+           "Index", "Name", "Kind", "Type", "Scope", "Attribute", "Register");
     Node * tmp = table[scope];
     while(tmp->next != NULL) {
         enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
-        printf("%-10d%-10s%-12s%-10s%-10d%-s\n",
-           tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
+        printf("%-10d%-10s%-12s%-10s%-10d%-10s%-10d\n",
+           tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute, tmp->reg_num);
         free(tmp);
         tmp = tmp->next;
     }
     enum_to_string(stringkind, stringtype, tmp->kind, tmp->type);
-    printf("%-10d%-10s%-12s%-10s%-10d%-s\n\n",
-        tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute);
+    printf("%-10d%-10s%-12s%-10s%-10d%-10s%-10d\n\n",
+        tmp->index, tmp->name, stringkind, stringtype, tmp->scope, tmp->attribute, tmp->reg_num);
     free(tmp);
     table[scope] = NULL;
     scope_index[scope] = 0;
