@@ -11,4 +11,5 @@ int main() {
     print(3.145);
     print(3);
     print(true);
+    print("test");
 }

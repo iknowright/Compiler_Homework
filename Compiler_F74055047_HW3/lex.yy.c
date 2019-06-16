@@ -1096,7 +1096,7 @@ case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
 #line 100 "compiler_hw3.l"
-{ CONCAT; return(STR_CONST); }
+{ CONCAT; yylval.string = strdup(yytext); return(STR_CONST); }
 	YY_BREAK
 /* Number Constant */
 case 45:

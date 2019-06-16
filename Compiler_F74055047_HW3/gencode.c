@@ -67,3 +67,15 @@ void genPrintConst(char * value)
     }
     fclose(file);
 }
+
+void genPrintStrConst(char * value)
+{
+    file = fopen("compiler_hw3.j","a");             
+    fprintf(file, "ldc \"%s\"\n", value);
+    fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+        "swap\n"
+    );
+    fprintf(file, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+    fclose(file);
+    return;
+}

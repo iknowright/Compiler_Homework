@@ -1521,7 +1521,7 @@ yyreduce:
 
   case 25:
 #line 177 "compiler_hw3.y" /* yacc.c:1652  */
-    {  }
+    { genPrintStrConst((yyvsp[-3].string)); }
 #line 1526 "y.tab.c" /* yacc.c:1652  */
     break;
 

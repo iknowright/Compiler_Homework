@@ -96,7 +96,7 @@ id			{letter}+({letter}|{digit})*
  /* String Constant */
 \"				        { BEGIN STRING_STATE; CONCAT; return(QUOTA);}
 <STRING_STATE>\"		{ BEGIN INITIAL; CONCAT; return(QUOTA);}
-<STRING_STATE>[^"]*		{ CONCAT; return(STR_CONST); }
+<STRING_STATE>[^"]*		{ CONCAT; yylval.string = strdup(yytext); return(STR_CONST); }
 
  /* Number Constant */
 {integer}	{ CONCAT; yylval.string = yytext; return(I_CONST); }

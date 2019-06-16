@@ -174,7 +174,7 @@ return_statement
     : RETURN expression SEMICOLON
 
 printf_statement
-    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON {  }
+    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { genPrintStrConst($4); }
     | PRINT LB constant RB SEMICOLON { genPrintConst($3); }
     | PRINT LB ID RB SEMICOLON {          
             if(!lookup_symbol(scope, $3, VARIABLE)) {
@@ -385,7 +385,7 @@ primary_expression
 ;
 
 string
-    : QUOTA STR_CONST QUOTA
+    : QUOTA STR_CONST QUOTA 
 ;
 
 constant
