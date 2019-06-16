@@ -9,7 +9,7 @@ ADD
 ASGN
 ID
 print id
-getstatic compiler_hw3/x Ljava/lang/String;
+iload 0
 getstatic java/lang/System/out Ljava/io/PrintStream;
 swap
-invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
+invokevirtual java/io/PrintStream/println(I)V

@@ -48,6 +48,10 @@ int lookup_symbol(int scope, char * name, kindEnum kind);
 void custom_yyerror(char *s);
 int lookup_reg(int stop_scope);
 ID_INFO * get_id_info(int curr_scope, char * id);
+void clearStatementStack();
+void printStatementStack();
+
+int stack_num = 0;
 
 extern int dump_flag;
 extern void yyerror(char * s);
@@ -119,8 +123,8 @@ program
 ;
 
 program_body
-    : function_declaration
-    | variable_declaration
+    : function_declaration { clearStatementStack; }
+    | variable_declaration { clearStatementStack; }
     | function
 ;
 
@@ -150,7 +154,7 @@ stats
 stat
     : while_statement
     | if_statement 
-    | variable_declaration
+    | variable_declaration { printStatementStack(); }
     | printf_statement 
     | expression_statement 
     | return_statement 
@@ -665,4 +669,24 @@ ID_INFO * get_id_info(int curr_scope, char * id)
     }
     printf("%d, %d, %d\n", the_node->type, the_node->scope, the_node->reg_num);
     return the_node;
+}
+
+void clearStatementStack()
+{
+    int i;
+    for(i = 0; i < stack_num; i++) {
+        strcpy(statement_stack[i], "");
+    }
+    stack_num = 0;
+}
+
+void printStatementStack()
+{
+    int i;
+    printf("----------------\n");
+    for(i = 0; i < 100; i++) {
+        printf("%s ", statement_stack[i]);
+    }
+    printf("\n");
+    printf("----------------\n");    
 }
