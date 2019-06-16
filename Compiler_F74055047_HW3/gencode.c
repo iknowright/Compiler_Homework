@@ -87,12 +87,49 @@ void genPrint(char * value)
     fclose(file);
 }
 
-void genPrintID(int reg) {
+void genPrintID(int reg, int type, int scope, char * id) {
     file = fopen("compiler_hw3.j","a");
-    fprintf(file, "iload %d\n", reg);
-    fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-        "swap\n"
-    );
-    fprintf(file, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+    switch(type) {
+        case STRING:
+            if(!scope)
+                fprintf(file, "getstatic compiler_hw3/%s Ljava/lang/String;\n", id);                
+            else
+                fprintf(file, "iload %d\n", reg);
+            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+                "swap\n"
+            );
+            fprintf(file, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+            break;
+        case INT:
+            if(!scope)
+                fprintf(file, "getstatic compiler_hw3/%s I\n", id);                
+            else
+                fprintf(file, "iload %d\n", reg);
+            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+                "swap\n"
+            );
+            fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
+            break;
+        case FLOAT:
+            if(!scope)
+                fprintf(file, "getstatic compiler_hw3/%s F\n", id);                
+            else
+                fprintf(file, "fload %d\n", reg);
+            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+                "swap\n"
+            );
+            fprintf(file, "invokevirtual java/io/PrintStream/println(F)V\n");
+            break;
+        case BOOL:
+            if(!scope)
+                fprintf(file, "getstatic compiler_hw3/%s Z\n", id);                
+            else
+                fprintf(file, "iload %d\n", reg);
+            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+                "swap\n"
+            );
+            fprintf(file, "invokevirtual java/io/PrintStream/println(Z)V\n");
+            break;
+    }
     fclose(file);
 }

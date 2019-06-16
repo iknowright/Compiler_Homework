@@ -1559,7 +1559,7 @@ yyreduce:
                 if(id_info != NULL) {
                     printf("before it\n");                        
                     printf("%d, %d, %d\n", id_info->type, id_info->scope, id_info->reg_num);
-                    genPrintID(id_info->reg_num);
+                    genPrintID(id_info->reg_num, id_info->type, id_info->scope, (yyvsp[-2].string));
                     printf("after it\n");    
                 } else {
                     printf("null?\n");
