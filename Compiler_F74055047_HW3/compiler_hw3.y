@@ -123,8 +123,8 @@ program
 ;
 
 program_body
-    : function_declaration { clearStatementStack; }
-    | variable_declaration { clearStatementStack; }
+    : function_declaration { printStatementStack(); clearStatementStack(); }
+    | variable_declaration { printStatementStack(); clearStatementStack(); }
     | function
 ;
 
@@ -154,9 +154,9 @@ stats
 stat
     : while_statement
     | if_statement 
-    | variable_declaration { printStatementStack(); }
+    | variable_declaration { printStatementStack(); clearStatementStack(); }
     | printf_statement 
-    | expression_statement 
+    | expression_statement { printStatementStack(); clearStatementStack(); }
     | return_statement 
 ;
 
@@ -184,8 +184,8 @@ expression_statement
 
 assign_statement
     : ID assignment_operator expression SEMICOLON {
-            genPrint($2);
-            genPrint("ID");
+            strcpy(statement_stack[stack_num++],$2);
+            strcpy(statement_stack[stack_num++],$1);
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -201,21 +201,14 @@ printf_statement
     : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { genPrintStrConst($4); }
     | PRINT LB constant RB SEMICOLON { genPrintConst($3); }
     | PRINT LB ID RB SEMICOLON {
-            genPrint("print id");
             if(!lookup_symbol(scope, $3, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
                 strcat(error_str, $3);
-            } else {
-                printf("%d, %s\n", scope, $3);                
+            } else {              
                 ID_INFO * id_info = get_id_info(scope, $3);
-                if(id_info != NULL) {
-                    printf("before it\n");                        
-                    printf("%d, %d, %d\n", id_info->type, id_info->scope, id_info->reg_num);
-                    genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);
-                    printf("after it\n");    
-                } else {
-                    printf("null?\n");
+                if(id_info != NULL) {                       
+                    genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);   
                 }
             }
         }
@@ -262,8 +255,8 @@ variable_declaration
                 if(scope == 0) {
                     genVarDeclrVal($2, $1, global_value);
                 } else {
-                    genPrint("ASGN");
-                    genPrint("ID\n\n");
+                    strcpy(statement_stack[stack_num++],"ASGN");
+                    strcpy(statement_stack[stack_num++],$2);
                 }
                 scope_index[scope]++;
             } else {
@@ -349,7 +342,7 @@ type
 ;
 
 assignment_expression
-    : unary_expression assignment_operator assignment_expression { genPrint($2); }
+    : unary_expression assignment_operator assignment_expression { strcpy(statement_stack[stack_num++],$2); }
     | logical_or_expression
 ;
 
@@ -370,15 +363,15 @@ relational_expression
 
 additive_expression
     : multiplicative_expression
-    | additive_expression ADD multiplicative_expression { genPrint("ADD"); }
-    | additive_expression SUB multiplicative_expression { genPrint("SUB"); }
+    | additive_expression ADD multiplicative_expression { strcpy(statement_stack[stack_num++],"ADD"); }
+    | additive_expression SUB multiplicative_expression { strcpy(statement_stack[stack_num++],"SUB"); }
 ;
 
 multiplicative_expression
     : unary_expression
-    | multiplicative_expression MUL unary_expression { genPrint("MUL"); }
-    | multiplicative_expression DIV unary_expression { genPrint("DIV"); }
-    | multiplicative_expression MOD unary_expression { genPrint("MOD"); }
+    | multiplicative_expression MUL unary_expression { strcpy(statement_stack[stack_num++],"MUL"); }
+    | multiplicative_expression DIV unary_expression { strcpy(statement_stack[stack_num++],"DIV"); }
+    | multiplicative_expression MOD unary_expression { strcpy(statement_stack[stack_num++],"MOD"); }
 ;
 
 relational_operator
@@ -401,27 +394,27 @@ assignment_operator
 
 unary_expression
     : postfix_expression
-	| INC unary_expression { genPrint("INC"); }
-	| DEC unary_expression { genPrint("DEC"); }
+	| INC unary_expression { strcpy(statement_stack[stack_num++],"INC"); }
+	| DEC unary_expression { strcpy(statement_stack[stack_num++],"DEC"); }
     | unary_operator unary_expression
 ;
 
 unary_operator
-    : SUB { genPrint("SUB"); }
-    | ADD { genPrint("ADD"); }
-    | NOT { genPrint("NOT"); }
+    : SUB { strcpy(statement_stack[stack_num++],"SUB"); }
+    | ADD { strcpy(statement_stack[stack_num++],"ADD"); }
+    | NOT { strcpy(statement_stack[stack_num++],"NOT"); }
 ;
 
 
 postfix_expression
     : primary_expression
-    | postfix_expression INC
-	| postfix_expression DEC
+    | postfix_expression INC { strcpy(statement_stack[stack_num++],"INC"); }
+	| postfix_expression DEC { strcpy(statement_stack[stack_num++],"DEC"); }
 ;
 
 primary_expression
 	: ID {  
-            genPrint($1);
+            strcpy(statement_stack[stack_num++],$1);
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -440,10 +433,10 @@ string
 ;
 
 constant
-    : I_CONST { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
-    | F_CONST { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
-    | TRUE { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
-    | FALSE { strcpy(global_value, $1); $$ = strdup($1); genPrint($1); }
+    : I_CONST { strcpy(global_value, $1); $$ = strdup($1); strcpy(statement_stack[stack_num++],$1); }
+    | F_CONST { strcpy(global_value, $1); $$ = strdup($1); strcpy(statement_stack[stack_num++],$1); }
+    | TRUE { strcpy(global_value, $1); $$ = strdup($1); strcpy(statement_stack[stack_num++],$1); }
+    | FALSE { strcpy(global_value, $1); $$ = strdup($1); strcpy(statement_stack[stack_num++],$1); }
 ;
 
 %%
@@ -667,7 +660,6 @@ ID_INFO * get_id_info(int curr_scope, char * id)
             }
         }
     }
-    printf("%d, %d, %d\n", the_node->type, the_node->scope, the_node->reg_num);
     return the_node;
 }
 
@@ -684,6 +676,7 @@ void printStatementStack()
 {
     int i;
     printf("----------------\n");
+    printf("Scope %d\n", scope);
     for(i = 0; i < 100; i++) {
         printf("%s ", statement_stack[i]);
     }
