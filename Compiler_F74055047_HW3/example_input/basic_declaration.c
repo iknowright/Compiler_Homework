@@ -8,6 +8,13 @@
 //     return;
 // }
 
+string b = "123";
+
 int main(){
-    int a =++ 5 * 1 + 3 * 2;
+    int a =++a * 1 + 3 * 2;
+
+    int c =7 * 1 + 3 * 2;
+
+    d += 123 * s - 5;
+    print(d);
 }

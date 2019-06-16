@@ -938,32 +938,32 @@ YY_RULE_SETUP
 case 14:
 YY_RULE_SETUP
 #line 56 "compiler_hw3.l"
-{ CONCAT; return(ASGN); }
+{ CONCAT; yylval.string = strdup("ASGN"); return(ASGN); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 57 "compiler_hw3.l"
-{ CONCAT; return(ADDASGN); }
+{ CONCAT; yylval.string = strdup("ADDASGN"); return(ADDASGN); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 58 "compiler_hw3.l"
-{ CONCAT; return(SUBASGN); }
+{ CONCAT; yylval.string = strdup("SUBASGN"); return(SUBASGN); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 59 "compiler_hw3.l"
-{ CONCAT; return(MULASGN); }
+{ CONCAT; yylval.string = strdup("MULASGN"); return(MULASGN); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 60 "compiler_hw3.l"
-{ CONCAT; return(DIVASGN); }
+{ CONCAT; yylval.string = strdup("DIVASGN"); return(DIVASGN); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 61 "compiler_hw3.l"
-{ CONCAT; return(MODASGN); }
+{ CONCAT; yylval.string = strdup("MODASGN"); return(MODASGN); }
 	YY_BREAK
 /* Logical */
 case 20:

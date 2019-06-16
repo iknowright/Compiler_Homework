@@ -52,12 +52,12 @@ id			{letter}+({letter}|{digit})*
 "!="	{ CONCAT; return(NE); }
 
  /* Assignment */
-"="		{ CONCAT; return(ASGN); }
-"+="	{ CONCAT; return(ADDASGN); }
-"-="	{ CONCAT; return(SUBASGN); }
-"*="	{ CONCAT; return(MULASGN); }
-"/="	{ CONCAT; return(DIVASGN); }
-"%="	{ CONCAT; return(MODASGN); }
+"="		{ CONCAT; yylval.string = strdup("ASGN"); return(ASGN); }
+"+="	{ CONCAT; yylval.string = strdup("ADDASGN"); return(ADDASGN); }
+"-="	{ CONCAT; yylval.string = strdup("SUBASGN"); return(SUBASGN); }
+"*="	{ CONCAT; yylval.string = strdup("MULASGN"); return(MULASGN); }
+"/="	{ CONCAT; yylval.string = strdup("DIVASGN"); return(DIVASGN); }
+"%="	{ CONCAT; yylval.string = strdup("MODASGN"); return(MODASGN); }
 
  /* Logical */
 "&&"	{ CONCAT; return(AND); }

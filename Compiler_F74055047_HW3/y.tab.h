@@ -69,35 +69,35 @@ extern int yydebug;
     LTE = 275,
     EQ = 276,
     NE = 277,
-    ASGN = 278,
-    ADDASGN = 279,
-    SUBASGN = 280,
-    MULASGN = 281,
-    DIVASGN = 282,
-    MODASGN = 283,
-    AND = 284,
-    OR = 285,
-    NOT = 286,
-    LB = 287,
-    RB = 288,
-    LCB = 289,
-    RCB = 290,
-    LSB = 291,
-    RSB = 292,
-    VOID = 293,
-    FLOAT = 294,
-    INT = 295,
-    STRING = 296,
-    BOOL = 297,
-    RETURN = 298,
-    CPP_COMMENT = 299,
-    C_COMMENT = 300,
-    I_CONST = 301,
-    F_CONST = 302,
-    STR_CONST = 303,
-    TRUE = 304,
-    FALSE = 305,
-    ID = 306
+    AND = 278,
+    OR = 279,
+    NOT = 280,
+    LB = 281,
+    RB = 282,
+    LCB = 283,
+    RCB = 284,
+    LSB = 285,
+    RSB = 286,
+    VOID = 287,
+    FLOAT = 288,
+    INT = 289,
+    STRING = 290,
+    BOOL = 291,
+    RETURN = 292,
+    CPP_COMMENT = 293,
+    C_COMMENT = 294,
+    I_CONST = 295,
+    F_CONST = 296,
+    STR_CONST = 297,
+    TRUE = 298,
+    FALSE = 299,
+    ID = 300,
+    ASGN = 301,
+    MULASGN = 302,
+    DIVASGN = 303,
+    MODASGN = 304,
+    ADDASGN = 305,
+    SUBASGN = 306
   };
 #endif
 /* Tokens.  */
@@ -121,35 +121,35 @@ extern int yydebug;
 #define LTE 275
 #define EQ 276
 #define NE 277
-#define ASGN 278
-#define ADDASGN 279
-#define SUBASGN 280
-#define MULASGN 281
-#define DIVASGN 282
-#define MODASGN 283
-#define AND 284
-#define OR 285
-#define NOT 286
-#define LB 287
-#define RB 288
-#define LCB 289
-#define RCB 290
-#define LSB 291
-#define RSB 292
-#define VOID 293
-#define FLOAT 294
-#define INT 295
-#define STRING 296
-#define BOOL 297
-#define RETURN 298
-#define CPP_COMMENT 299
-#define C_COMMENT 300
-#define I_CONST 301
-#define F_CONST 302
-#define STR_CONST 303
-#define TRUE 304
-#define FALSE 305
-#define ID 306
+#define AND 278
+#define OR 279
+#define NOT 280
+#define LB 281
+#define RB 282
+#define LCB 283
+#define RCB 284
+#define LSB 285
+#define RSB 286
+#define VOID 287
+#define FLOAT 288
+#define INT 289
+#define STRING 290
+#define BOOL 291
+#define RETURN 292
+#define CPP_COMMENT 293
+#define C_COMMENT 294
+#define I_CONST 295
+#define F_CONST 296
+#define STR_CONST 297
+#define TRUE 298
+#define FALSE 299
+#define ID 300
+#define ASGN 301
+#define MULASGN 302
+#define DIVASGN 303
+#define MODASGN 304
+#define ADDASGN 305
+#define SUBASGN 306
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

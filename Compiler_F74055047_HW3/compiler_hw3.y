@@ -65,7 +65,7 @@ char global_value[100];
 %token SEMICOLON COMMA QUOTA
 %token ADD SUB MUL DIV MOD INC DEC
 %token MT LT MTE LTE EQ NE
-%token ASGN ADDASGN SUBASGN MULASGN DIVASGN MODASGN
+// %token ASGN ADDASGN SUBASGN MULASGN DIVASGN MODASGN
 %token AND OR NOT
 %token LB RB LCB RCB LSB RSB
 %token VOID FLOAT INT STRING BOOL
@@ -79,6 +79,12 @@ char global_value[100];
 %token <string> TRUE
 %token <string> FALSE
 %token <string> ID
+%token <string> ASGN
+%token <string> MULASGN
+%token <string> DIVASGN 
+%token <string> MODASGN
+%token <string> ADDASGN
+%token <string> SUBASGN
 // code added
 
 
@@ -88,7 +94,7 @@ char global_value[100];
 // %type <string> unary_expression constant primary_expression postfix_expression
 // %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
 // %type <string> unary_operator
-%type <string> constant
+%type <string> constant assignment_operator
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -161,7 +167,9 @@ expression_statement
 ;
 
 assign_statement
-    : ID assignment_operator expression SEMICOLON {        
+    : ID assignment_operator expression SEMICOLON {
+            genPrint($2);
+            genPrint("ID");
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -176,7 +184,8 @@ return_statement
 printf_statement
     : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { genPrintStrConst($4); }
     | PRINT LB constant RB SEMICOLON { genPrintConst($3); }
-    | PRINT LB ID RB SEMICOLON {          
+    | PRINT LB ID RB SEMICOLON {
+            genPrint("print id");
             if(!lookup_symbol(scope, $3, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
@@ -207,6 +216,9 @@ variable_declaration
                 printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
                 if(scope == 0)
                     genVarDeclr($2, $1);
+                else {
+                    genPrint("normal declaration");
+                }
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -220,6 +232,10 @@ variable_declaration
                 printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
                 if(scope == 0)
                     genVarDeclrVal($2, $1, global_value);
+                else {
+                    genPrint("ASGN");
+                    genPrint("ID\n\n");
+                }
                 scope_index[scope]++;
             } else {
                 semantic_flag = 1;
@@ -301,7 +317,7 @@ type
 ;
 
 assignment_expression
-    : unary_expression assignment_operator assignment_expression
+    : unary_expression assignment_operator assignment_expression { genPrint($2); }
     | logical_or_expression
 ;
 
@@ -343,12 +359,12 @@ relational_operator
 ;
 
 assignment_operator
-	: ASGN { genPrint("ASGN"); }
-	| MULASGN { genPrint("MULASGN"); }
-	| DIVASGN { genPrint("DIVASGN"); }
-	| MODASGN { genPrint("MODASGN"); }
-	| ADDASGN { genPrint("ADDASGN"); }
-	| SUBASGN { genPrint("SUBASGN"); }
+	: ASGN { $$ = strdup($1); }
+	| MULASGN { $$ = strdup($1); }
+	| DIVASGN { $$ = strdup($1); }
+	| MODASGN { $$ = strdup($1); }
+	| ADDASGN { $$ = strdup($1); }
+	| SUBASGN { $$ = strdup($1); }
 	;
 
 unary_expression
@@ -372,7 +388,8 @@ postfix_expression
 ;
 
 primary_expression
-	: ID {    
+	: ID {  
+            genPrint($1);
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
