@@ -389,10 +389,10 @@ string
 ;
 
 constant
-    : I_CONST { strcpy(global_value, yytext); $$ = strdup(yytext);}
-    | F_CONST { strcpy(global_value, yytext); $$ = strdup(yytext);}
-    | TRUE { strcpy(global_value, yytext); $$ = strdup(yytext);}
-    | FALSE { strcpy(global_value, yytext); $$ = strdup(yytext);}
+    : I_CONST { strcpy(global_value, $1); $$ = strdup($1);}
+    | F_CONST { strcpy(global_value, $1); $$ = strdup($1);}
+    | TRUE { strcpy(global_value, $1); $$ = strdup($1);}
+    | FALSE { strcpy(global_value, $1); $$ = strdup($1);}
 ;
 
 %%

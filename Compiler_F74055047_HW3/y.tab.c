@@ -1701,25 +1701,25 @@ yyreduce:
 
   case 92:
 #line 392 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, yytext); (yyval.string) = strdup(yytext);}
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string));}
 #line 1706 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 93:
 #line 393 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, yytext); (yyval.string) = strdup(yytext);}
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string));}
 #line 1712 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 94:
 #line 394 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, yytext); (yyval.string) = strdup(yytext);}
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string));}
 #line 1718 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 95:
 #line 395 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, yytext); (yyval.string) = strdup(yytext);}
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string));}
 #line 1724 "y.tab.c" /* yacc.c:1652  */
     break;
 

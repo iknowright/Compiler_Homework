@@ -41,25 +41,29 @@ void genVarDeclrVal(char * id, int type, char * value)
 void genPrintConst(char * value)
 {
     file = fopen("compiler_hw3.j","a");
-    if(!strcmp(value, "0")) {
+    int i = 0;
+    int is_float = 0;
+    for(i = 0; i < strlen(value); i++) {
+        if(value[i] == '.') {
+            is_float = 1;
+            break;
+        }
+    }
+    if(!is_float) {
+        printf("it is a integer number %d\n", atoi(value));                
         fprintf(file, "ldc %s\n", value);
         fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
             "swap\n"
         );
         fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
-    } else if(atof(value) != 0.0) {
+    } else {
+        printf("it is a float number %f\n", atof(value));                
         printf("%s\n", value);
         fprintf(file, "ldc %s\n", value);
         fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
             "swap\n"
         );
         fprintf(file, "invokevirtual java/io/PrintStream/println(F)V\n");
-    } else if(atoi(value) != 0) {
-        fprintf(file, "ldc %s\n", value);
-        fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-            "swap\n"
-        );
-        fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
     }
     fclose(file);
 }

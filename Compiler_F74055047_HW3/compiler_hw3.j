@@ -6,3 +6,11 @@ ldc 3.145
 getstatic java/lang/System/out Ljava/io/PrintStream;
 swap
 invokevirtual java/io/PrintStream/println(F)V
+ldc 3
+getstatic java/lang/System/out Ljava/io/PrintStream;
+swap
+invokevirtual java/io/PrintStream/println(I)V
+ldc 1
+getstatic java/lang/System/out Ljava/io/PrintStream;
+swap
+invokevirtual java/io/PrintStream/println(I)V
