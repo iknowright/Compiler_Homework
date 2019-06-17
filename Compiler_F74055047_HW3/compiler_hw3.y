@@ -207,8 +207,10 @@ printf_statement
                 strcat(error_str, $3);
             } else {              
                 ID_INFO * id_info = get_id_info(scope, $3);
-                if(id_info != NULL) {                       
-                    genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);   
+                if(id_info != NULL) {
+                    printf("PRINTING ID\n");                  
+                    // genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);   
+                    genPrint("print here");
                 }
             }
         }
@@ -639,6 +641,7 @@ void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
 ID_INFO * get_id_info(int curr_scope, char * id)
 {
     int i;
+    file = fopen("compiler_hw3.j","a");    
     ID_INFO * the_node = NULL;
     for(i = curr_scope; i >= 0; i--) {
         if(table[i] != NULL) {
@@ -674,12 +677,84 @@ void clearStatementStack()
 
 void printStatementStack()
 {
-    int i;
-    printf("----------------\n");
-    printf("Scope %d\n", scope);
-    for(i = 0; i < 100; i++) {
-        printf("%s ", statement_stack[i]);
+    char buf[100];
+    if(scope && stack_num > 0 && !semantic_flag) {    
+        genPrint("expression here");    
+        printf("----------------\n");
+        printf("Scope %d\n", scope);
+        int float_flag = 0;
+        ID_INFO * id_info;
+        for(int i = 0; i < stack_num; i++) {
+            printf("%s ", statement_stack[i]);
+        }
+        printf("\nStack Size %d\n", stack_num);
+        printf("Semantic flag %d\n", semantic_flag);
+        for(int i = 0; i < stack_num - 2; i++) {
+            printf("%s\n", statement_stack[i]);
+            if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                if(id_info->type == FLOAT) {
+                    float_flag = 1;
+                    break;
+                }          
+            } else {           
+                for(int j  = 0; j < strlen(statement_stack[i]); j++) {
+                    if(statement_stack[i][j] == '.') {
+                        float_flag = 1;
+                        break;
+                    }
+                }                               
+            }
+        }
+        printf("float flag %d\n", float_flag);
+
+        for(int i = 0; i < stack_num - 2; i++) {        
+            printf("--> %s\n", statement_stack[i]);          
+            if(float_flag) {
+                if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                    switch(id_info->type) {
+                        case INT:
+                            // fprintf(file, "iload %d\n", id_info->reg_num);
+                            // fprintf(file, "i2f\n");                           
+                            break;
+                        case FLOAT:
+                            // fprintf(file, "fload %d\n", id_info->reg_num);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    int is_float = 0;
+                    for(int j  = 0; j < strlen(statement_stack[i]); j++) {
+                        if(statement_stack[i][j] == '.') {
+                            is_float = 1;
+                            break;
+                        }
+                    }
+                    if(is_float) {
+                        // fprintf(file, "ldc %s\n", statement_stack[i]);                        
+                    } else {
+                        // fprintf(file, "ldc %s\n", statement_stack[i]);
+                        // fprintf(file, "i2f\n");                                                                                                  
+                    }
+                }
+            } else {
+                sprintf(buf, "%s\n", statement_stack[i]);
+                genPrint(buf);
+                if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                    switch(id_info->type) {
+                        case INT:
+                            // sprintf(buf, "iload %d\n", id_info->reg_num);
+                            // genPrint(buf);
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (!strcmp(statement_stack[i], )){
+                    // sprintf(buf, "iload %d\n", id_info->reg_num);
+                    // genPrint(buf);
+                }
+            }
+        }
+        printf("----------------\n");    
     }
-    printf("\n");
-    printf("----------------\n");    
 }
