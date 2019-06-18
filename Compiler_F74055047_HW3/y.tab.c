@@ -2577,7 +2577,47 @@ char * printStatementStack()
                     sprintf(buf, "istore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                }
+                } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
+                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "isub\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
+                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "imul\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
+                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "idiv\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if(!strcmp(statement_stack[stack_num - 2], "MODASGN")) {
+                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "imod\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } 
             }
         }
         printf("--------------------------------\n");    

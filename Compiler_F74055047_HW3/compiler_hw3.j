@@ -11,7 +11,7 @@ getstatic compiler_hw3/a I
 ldc 6
 iadd
 iload 0
-iadd
+imod
 istore 0
 iload 0
 getstatic java/lang/System/out Ljava/io/PrintStream;
