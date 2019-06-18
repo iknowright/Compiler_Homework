@@ -137,6 +137,10 @@ function
                 insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 0, max_reg + 1);
                 strcpy($4, "");
                 scope_index[scope]++;
+
+                
+
+
             } else if(lookup_symbol(scope, $2, FUNCTION) == 1){
                 semantic_flag = 1;
                 strcpy(error_str, "Redeclared function ");
@@ -204,8 +208,8 @@ return_statement
     : RETURN expression SEMICOLON
 
 printf_statement
-    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { $$ = strdup("");genPrintStrConst($4); }
-    | PRINT LB constant RB SEMICOLON { $$ = strdup("");genPrintConst($3);  }
+    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { $$ = genPrintStrConst($4); }
+    | PRINT LB constant RB SEMICOLON { $$ = genPrintConst($3);  }
     | PRINT LB ID RB SEMICOLON {
             if(!lookup_symbol(scope, $3, VARIABLE)) {
                 semantic_flag = 1;
@@ -783,6 +787,5 @@ char * printStatementStack()
         }
         printf("--------------------------------\n");    
     }
-    genPrint(buffer);
     return strdup(buffer);
 }

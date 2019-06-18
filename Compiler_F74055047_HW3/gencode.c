@@ -38,12 +38,15 @@ void genVarDeclrVal(char * id, int type, char * value)
     return;
 }
 
-void genPrintConst(char * value)
+char *  genPrintConst(char * value)
 {
     char buffer[1000];
     char tmp[1000];    
     char buf[100];
-    file = fopen("compiler_hw3.j","a");
+    strcpy(buffer, "");
+    strcpy(tmp, "");
+    strcpy(buf, "");
+
     int i = 0;
     int is_float = 0;
     for(i = 0; i < strlen(value); i++) {
@@ -54,33 +57,56 @@ void genPrintConst(char * value)
     }
     if(!is_float) {
         printf("it is a integer number %d\n", atoi(value));                
-        fprintf(file, "ldc %s\n", value);
-        fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+        sprintf(buffer, "ldc %s\n", value);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+        sprintf(buffer, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
             "swap\n"
         );
-        fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+        sprintf(buffer, "invokevirtual java/io/PrintStream/println(I)V\n");
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
     } else {
         printf("it is a float number %f\n", atof(value));                
         printf("%s\n", value);
-        fprintf(file, "ldc %s\n", value);
-        fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+        sprintf(buffer, "ldc %s\n", value);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+        sprintf(buffer, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
             "swap\n"
         );
-        fprintf(file, "invokevirtual java/io/PrintStream/println(F)V\n");
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+        sprintf(buffer, "invokevirtual java/io/PrintStream/println(F)V\n");
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
     }
-    fclose(file);
+    return strdup(buffer);
 }
 
-void genPrintStrConst(char * value)
+char * genPrintStrConst(char * value)
 {
-    file = fopen("compiler_hw3.j","a");             
-    fprintf(file, "ldc \"%s\"\n", value);
-    fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+    char buffer[1000];
+    char tmp[1000];    
+    char buf[100];
+    strcpy(buffer, "");
+    strcpy(tmp, "");
+    strcpy(buf, "");
+
+    sprintf(buffer, "ldc \"%s\"\n", value);
+    strcpy(tmp, buffer);
+    sprintf(buffer, "%s%s", tmp, buf);
+    sprintf(buffer, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
         "swap\n"
     );
-    fprintf(file, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
-    fclose(file);
-    return;
+    strcpy(tmp, buffer);
+    sprintf(buffer, "%s%s", tmp, buf);
+    sprintf(buffer, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+    strcpy(tmp, buffer);
+    sprintf(buffer, "%s%s", tmp, buf);
+    return strdup(buffer);
 }
 
 void genPrint(char * value)
@@ -175,6 +201,5 @@ char * genPrintID(int reg, int type, int scope, char * id) {
             sprintf(buffer, "%s%s", tmp, buf);
             break;
     }
-    printf("%s\n", buffer);
     return strdup(buffer);
 }

@@ -10,10 +10,11 @@ FILE * file;
 
 void genVarDeclr(char * id, int type);
 void genVarDeclrVal(char * id, int type, char * text);
-void genPrintConst(char * value);
-void genPrintStrConst(char * value);
+char * genPrintConst(char * value);
+char * genPrintStrConst(char * value);
 void genPrint(char * value);
 char * genPrintID(int reg, int type, int scope, char * id);
+char * genFunction(char * id);
 
 
 #endif
