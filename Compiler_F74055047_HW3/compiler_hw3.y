@@ -110,7 +110,7 @@ char statement_stack[100][100];
 // %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
 // %type <string> unary_operator
 %type <string> constant assignment_operator
-%type <string> stat
+%type <string> stat stats
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -149,8 +149,11 @@ function
 ;
 
 stats
-    : stats stat
-    |
+    : stats stat { 
+            strcat($1, $2);
+            $$ = $1; 
+        }
+    | { $$ = strdup(""); }
 
 stat
     : while_statement { $$ = strdup(""); }
@@ -279,7 +282,7 @@ if_statement
 ;
 
 block_body
-    : left_brace stats right_brace
+    : left_brace stats right_brace { printf("where are you stats : \n%s\n", $2); }
 ;
 
 left_brace
@@ -778,9 +781,8 @@ char * printStatementStack()
                 }
             }
         }
-        genPrint(buffer);
-        strcpy(buffer, "");
-        printf("--------------------------------\n");    
     }
+    genPrint(buffer);
+    printf("--------------------------------\n");    
     return strdup(buffer);
 }
