@@ -40,6 +40,9 @@ void genVarDeclrVal(char * id, int type, char * value)
 
 void genPrintConst(char * value)
 {
+    char buffer[1000];
+    char tmp[1000];    
+    char buf[100];
     file = fopen("compiler_hw3.j","a");
     int i = 0;
     int is_float = 0;
@@ -87,49 +90,91 @@ void genPrint(char * value)
     fclose(file);
 }
 
-void genPrintID(int reg, int type, int scope, char * id) {
-    file = fopen("compiler_hw3.j","a");
+char * genPrintID(int reg, int type, int scope, char * id) {
+    char buffer[1000];
+    char tmp[1000];    
+    char buf[100];
+    strcpy(buffer, "");
+    strcpy(tmp, "");
+    strcpy(buf, "");
     switch(type) {
         case STRING:
-            if(!scope)
-                fprintf(file, "getstatic compiler_hw3/%s Ljava/lang/String;\n", id);                
-            else
-                fprintf(file, "iload %d\n", reg);
-            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
-                "swap\n"
+            if(!scope) {
+                sprintf(buf, "getstatic compiler_hw3/%s Ljava/lang/String;\n", id);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);               
+            } else {
+                sprintf(buf, "iload %d\n", reg);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+            sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            "swap\n"
             );
-            fprintf(file, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+            sprintf(buf, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
             break;
         case INT:
-            if(!scope)
-                fprintf(file, "getstatic compiler_hw3/%s I\n", id);                
-            else
-                fprintf(file, "iload %d\n", reg);
-            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            if(!scope) {
+                sprintf(buf, "getstatic compiler_hw3/%s I\n", id);                
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else {
+                sprintf(buf, "iload %d\n", reg);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+            sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
                 "swap\n"
             );
-            fprintf(file, "invokevirtual java/io/PrintStream/println(I)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+            sprintf(buf, "invokevirtual java/io/PrintStream/println(I)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
             break;
         case FLOAT:
-            if(!scope)
-                fprintf(file, "getstatic compiler_hw3/%s F\n", id);                
-            else
-                fprintf(file, "fload %d\n", reg);
-            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            if(!scope) {
+                sprintf(buf, "getstatic compiler_hw3/%s F\n", id);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);            
+            } else {
+                sprintf(buf, "fload %d\n", reg);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+            sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
                 "swap\n"
             );
-            fprintf(file, "invokevirtual java/io/PrintStream/println(F)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+            sprintf(buf, "invokevirtual java/io/PrintStream/println(F)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
             break;
         case BOOL:
-            if(!scope)
-                fprintf(file, "getstatic compiler_hw3/%s Z\n", id);                
-            else
-                fprintf(file, "iload %d\n", reg);
-            fprintf(file, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+            if(!scope) {
+                sprintf(buf, "getstatic compiler_hw3/%s Z\n", id);                
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else {
+                sprintf(buf, "iload %d\n", reg);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+            sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
                 "swap\n"
             );
-            fprintf(file, "invokevirtual java/io/PrintStream/println(Z)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+            sprintf(buf, "invokevirtual java/io/PrintStream/println(Z)V\n");
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
             break;
     }
-    fclose(file);
+    printf("%s\n", buffer);
+    return strdup(buffer);
 }

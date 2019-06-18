@@ -110,7 +110,7 @@ char statement_stack[100][100];
 // %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
 // %type <string> unary_operator
 %type <string> constant assignment_operator
-%type <string> stat stats
+%type <string> stat stats printf_statement block_body
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -142,16 +142,18 @@ function
                 strcpy(error_str, "Redeclared function ");
                 strcat(error_str, $2);
             }
-        }
+        }        
         strcpy($4, "");
-        forward_flag = 0;
+        forward_flag = 0;      
     }
 ;
 
 stats
-    : stats stat { 
-            strcat($1, $2);
-            $$ = $1; 
+    : stats stat {
+            char buffer_total[3000];
+            strcpy(buffer_total, "");
+            sprintf(buffer_total, "%s%s", $1, $2);
+            $$ = strdup(buffer_total); 
         }
     | { $$ = strdup(""); }
 
@@ -159,7 +161,7 @@ stat
     : while_statement { $$ = strdup(""); }
     | if_statement { $$ = strdup(""); }
     | variable_declaration { $$=printStatementStack(); clearStatementStack(); }
-    | printf_statement { $$ = strdup(""); }
+    | printf_statement { $$ = $1; }
     | expression_statement { $$=printStatementStack(); clearStatementStack(); }
     | return_statement { $$ = strdup(""); }
 ;
@@ -202,18 +204,18 @@ return_statement
     : RETURN expression SEMICOLON
 
 printf_statement
-    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { genPrintStrConst($4); }
-    | PRINT LB constant RB SEMICOLON { genPrintConst($3); }
+    : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { $$ = strdup("");genPrintStrConst($4); }
+    | PRINT LB constant RB SEMICOLON { $$ = strdup("");genPrintConst($3);  }
     | PRINT LB ID RB SEMICOLON {
             if(!lookup_symbol(scope, $3, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
                 strcat(error_str, $3);
+                $$ = strdup("");
             } else {              
                 ID_INFO * id_info = get_id_info(scope, $3);
                 if(id_info != NULL) {                
-                    genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);   
-                    genPrint("print here");
+                    $$ = genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);
                 }
             }
         }
@@ -238,7 +240,6 @@ function_declaration
 variable_declaration
     : type ID SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
                 int max_reg = lookup_reg(scope);
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
                 if(scope == 0) {
@@ -254,7 +255,6 @@ variable_declaration
         }
     | type ID ASGN expression SEMICOLON {
             if(!lookup_symbol(scope, $2, VARIABLE)) {
-                printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
                 int max_reg = lookup_reg(scope);
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
                 if(scope == 0) {
@@ -282,7 +282,7 @@ if_statement
 ;
 
 block_body
-    : left_brace stats right_brace { printf("where are you stats : \n%s\n", $2); }
+    : left_brace stats right_brace { printf("where are you stats : \n%s\n", $2); $$ = $2;}
 ;
 
 left_brace
@@ -290,7 +290,7 @@ left_brace
 ;
 
 right_brace
-    : RCB { dump_flag = 1; scope--; }
+    : RCB { dump_flag = 1; scope--; printf("im at right braces\n"); }
 ;
 
 expression
@@ -781,8 +781,8 @@ char * printStatementStack()
                 }
             }
         }
+        printf("--------------------------------\n");    
     }
     genPrint(buffer);
-    printf("--------------------------------\n");    
     return strdup(buffer);
 }
