@@ -5,8 +5,12 @@
 .method public static main([Ljava/lang/String;)V
 .limit stack 50
 .limit locals 50
+ldc 3
+istore 0
 getstatic compiler_hw3/a I
 ldc 6
+iadd
+iload 0
 iadd
 istore 0
 iload 0

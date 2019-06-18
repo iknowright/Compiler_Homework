@@ -2470,13 +2470,35 @@ char * printStatementStack()
             if(float_flag) {
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
-                        case INT:                          
-                            break;
+                        case INT:
+                            if(id_info->scope == 0) {
+                                sprintf(buf, "getstatic compiler_hw3/%s I\ni2f\n", statement_stack[i]);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);                                
+                            } else {
+                                sprintf(buf, "iload %d\ni2f\n", id_info->reg_num);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);
+                            }
+                            break;                       
                         case FLOAT:
+                            if(id_info->scope == 0) {
+                                sprintf(buf, "getstatic compiler_hw3/%s F\n", statement_stack[i]);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);                                
+                            } else {
+                                sprintf(buf, "fload %d\n", id_info->reg_num);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);
+                            }
                             break;
                         default:
                             break;
                     }
+                } else if (!strcmp(statement_stack[i], "ADD")){
+                    sprintf(buf, "fadd\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 } else {
                     int is_float = 0;
                     for(int j  = 0; j < strlen(statement_stack[i]); j++) {
@@ -2485,8 +2507,14 @@ char * printStatementStack()
                             break;
                         }
                     }
-                    if(is_float) {                 
-                    } else {                                                                                             
+                    if(is_float) {
+                        sprintf(buf, "ldc %s\n", statement_stack[i]);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else {
+                        sprintf(buf, "ldc %s\ni2f\n", statement_stack[i]);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);                                                                                      
                     }
                 }
             } else {
@@ -2536,6 +2564,16 @@ char * printStatementStack()
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
+                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                    sprintf(buf, "iadd\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                     sprintf(buf, "istore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
