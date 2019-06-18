@@ -50,6 +50,7 @@ int lookup_reg(int stop_scope);
 ID_INFO * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
 char * printStatementStack();
+int is_global(char * id);
 
 int stack_num = 0;
 
@@ -138,8 +139,7 @@ function
                 strcpy($4, "");
                 scope_index[scope]++;
 
-                
-
+                genFunction($2, $6, $1);
 
             } else if(lookup_symbol(scope, $2, FUNCTION) == 1){
                 semantic_flag = 1;
@@ -682,6 +682,23 @@ void clearStatementStack()
     stack_num = 0;
 }
 
+int is_global(char * id) {
+    int flag = 0;
+    int i;
+    Node * tmp = table[0];
+    while(tmp->next != NULL) {
+        if(!strcmp(tmp->name, id)) {
+            flag = 1;
+            break;
+        }
+        tmp = tmp->next;
+    }
+    if(!strcmp(tmp->name, id)) {
+        flag = 1;
+    }
+    return flag;
+}
+
 char * printStatementStack()
 {
     char buffer[1000];
@@ -742,9 +759,15 @@ char * printStatementStack()
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
                         case INT:
-                            sprintf(buf, "iload %d\n", id_info->reg_num);
-                            strcpy(tmp, buffer);
-                            sprintf(buffer, "%s%s", tmp, buf);
+                            if(id_info->scope == 0) {
+                                sprintf(buf, "getstatic compiler_hw3/%s\n", statement_stack[i]);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);                                
+                            } else {
+                                sprintf(buf, "iload %d\n", id_info->reg_num);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);
+                            }
                             break;
                         default:
                             break;

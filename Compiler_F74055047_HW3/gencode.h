@@ -14,7 +14,7 @@ char * genPrintConst(char * value);
 char * genPrintStrConst(char * value);
 void genPrint(char * value);
 char * genPrintID(int reg, int type, int scope, char * id);
-char * genFunction(char * id);
+void genFunction(char * id, char * body, int type);
 
 
 #endif

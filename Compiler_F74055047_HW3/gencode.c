@@ -203,3 +203,15 @@ char * genPrintID(int reg, int type, int scope, char * id) {
     }
     return strdup(buffer);
 }
+
+void genFunction(char * id, char * body, int type)
+{
+    file = fopen("compiler_hw3.j","a");
+    if(!strcmp(id, "main")) {
+        fprintf(file, ".method public static main([Ljava/lang/String;)V\n.limit stack 50\n.limit locals 50\n");
+        fprintf(file, "%s\n", body);
+        fprintf(file, "return\n");        
+        fprintf(file, ".end method\n");        
+    }
+    fclose(file);
+}

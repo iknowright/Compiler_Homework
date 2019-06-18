@@ -118,6 +118,7 @@ int lookup_reg(int stop_scope);
 ID_INFO * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
 char * printStatementStack();
+int is_global(char * id);
 
 int stack_num = 0;
 
@@ -132,7 +133,7 @@ char global_value[100];
 
 char statement_stack[100][100];
 
-#line 136 "y.tab.c" /* yacc.c:337  */
+#line 137 "y.tab.c" /* yacc.c:337  */
 # ifndef YY_NULLPTR
 #  if defined __cplusplus
 #   if 201103L <= __cplusplus
@@ -277,13 +278,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 71 "compiler_hw3.y" /* yacc.c:352  */
+#line 72 "compiler_hw3.y" /* yacc.c:352  */
 
     int i_val;
     double f_val;
     char* string;
 
-#line 287 "y.tab.c" /* yacc.c:352  */
+#line 288 "y.tab.c" /* yacc.c:352  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -591,7 +592,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   122,   122,   123,   127,   128,   129,   133,   156,   162,
+       0,   123,   123,   124,   128,   129,   130,   134,   156,   162,
      165,   166,   167,   168,   169,   170,   174,   184,   185,   186,
      190,   191,   192,   196,   208,   211,   212,   213,   229,   245,
      260,   279,   283,   284,   285,   289,   293,   297,   301,   302,
@@ -1491,19 +1492,19 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 127 "compiler_hw3.y" /* yacc.c:1652  */
+#line 128 "compiler_hw3.y" /* yacc.c:1652  */
     { printStatementStack(); clearStatementStack(); }
-#line 1497 "y.tab.c" /* yacc.c:1652  */
+#line 1498 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 5:
-#line 128 "compiler_hw3.y" /* yacc.c:1652  */
+#line 129 "compiler_hw3.y" /* yacc.c:1652  */
     { printStatementStack(); clearStatementStack(); }
-#line 1503 "y.tab.c" /* yacc.c:1652  */
+#line 1504 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 7:
-#line 133 "compiler_hw3.y" /* yacc.c:1652  */
+#line 134 "compiler_hw3.y" /* yacc.c:1652  */
     {
         if(!forward_flag) {
             if(!lookup_symbol(scope, (yyvsp[-4].string), FUNCTION)) {
@@ -1512,8 +1513,7 @@ yyreduce:
                 strcpy((yyvsp[-2].string), "");
                 scope_index[scope]++;
 
-                printf("id : %s\n", (yyvsp[-4].string));
-
+                genFunction((yyvsp[-4].string), (yyvsp[0].string), (yyvsp[-5].i_val));
 
             } else if(lookup_symbol(scope, (yyvsp[-4].string), FUNCTION) == 1){
                 semantic_flag = 1;
@@ -2416,6 +2416,23 @@ void clearStatementStack()
     stack_num = 0;
 }
 
+int is_global(char * id) {
+    int flag = 0;
+    int i;
+    Node * tmp = table[0];
+    while(tmp->next != NULL) {
+        if(!strcmp(tmp->name, id)) {
+            flag = 1;
+            break;
+        }
+        tmp = tmp->next;
+    }
+    if(!strcmp(tmp->name, id)) {
+        flag = 1;
+    }
+    return flag;
+}
+
 char * printStatementStack()
 {
     char buffer[1000];
@@ -2476,9 +2493,15 @@ char * printStatementStack()
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
                         case INT:
-                            sprintf(buf, "iload %d\n", id_info->reg_num);
-                            strcpy(tmp, buffer);
-                            sprintf(buffer, "%s%s", tmp, buf);
+                            if(id_info->scope == 0) {
+                                sprintf(buf, "getstatic compiler_hw3/%s\n", statement_stack[i]);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);                                
+                            } else {
+                                sprintf(buf, "iload %d\n", id_info->reg_num);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);
+                            }
                             break;
                         default:
                             break;
