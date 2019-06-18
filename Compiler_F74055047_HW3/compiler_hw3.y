@@ -49,7 +49,7 @@ void custom_yyerror(char *s);
 int lookup_reg(int stop_scope);
 ID_INFO * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
-void printStatementStack();
+char * printStatementStack();
 
 int stack_num = 0;
 
@@ -110,6 +110,7 @@ char statement_stack[100][100];
 // %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
 // %type <string> unary_operator
 %type <string> constant assignment_operator
+%type <string> stat
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -152,12 +153,12 @@ stats
     |
 
 stat
-    : while_statement
-    | if_statement 
-    | variable_declaration { printStatementStack(); clearStatementStack(); }
-    | printf_statement 
-    | expression_statement { printStatementStack(); clearStatementStack(); }
-    | return_statement 
+    : while_statement { $$ = strdup(""); }
+    | if_statement { $$ = strdup(""); }
+    | variable_declaration { $$=printStatementStack(); clearStatementStack(); }
+    | printf_statement { $$ = strdup(""); }
+    | expression_statement { $$=printStatementStack(); clearStatementStack(); }
+    | return_statement { $$ = strdup(""); }
 ;
 
 function_call
@@ -674,9 +675,13 @@ void clearStatementStack()
     stack_num = 0;
 }
 
-void printStatementStack()
+char * printStatementStack()
 {
+    char buffer[1000];
+    char tmp[1000];    
     char buf[100];
+    strcpy(buffer, "");
+    strcpy(tmp, "");
     if(scope && stack_num > 0 && !semantic_flag) {     
         printf("--------------------------------\n");
         printf("Scope %d\n\n", scope);
@@ -685,7 +690,7 @@ void printStatementStack()
         for(int i = 0; i < stack_num; i++) {
             printf("%s ", statement_stack[i]);
         }
-        printf("\n\nStack Size %d\n", stack_num);
+        printf("\n\nStack size %d\n", stack_num);
         printf("Semantic flag %d\n", semantic_flag);
         for(int i = 0; i < stack_num - 2; i++) {
             if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
@@ -702,17 +707,14 @@ void printStatementStack()
                 }                               
             }
         }
-        printf("float flag %d\n", float_flag);
+        printf("Float flag %d\n", float_flag);
         for(int i = 0; i < stack_num - 2; i++) {                 
             if(float_flag) {
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
-                        case INT:
-                            // fprintf(file, "iload %d\n", id_info->reg_num);
-                            // fprintf(file, "i2f\n");                           
+                        case INT:                          
                             break;
                         case FLOAT:
-                            // fprintf(file, "fload %d\n", id_info->reg_num);
                             break;
                         default:
                             break;
@@ -725,55 +727,60 @@ void printStatementStack()
                             break;
                         }
                     }
-                    if(is_float) {
-                        // fprintf(file, "ldc %s\n", statement_stack[i]);                        
-                    } else {
-                        // fprintf(file, "ldc %s\n", statement_stack[i]);
-                        // fprintf(file, "i2f\n");                                                                                                  
+                    if(is_float) {                 
+                    } else {                                                                                             
                     }
                 }
             } else {
-                sprintf(buf, "%s\n", statement_stack[i]);
-                genPrint(buf);
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
                         case INT:
-                            sprintf(buf, "iload %d", id_info->reg_num);
-                            genPrint(buf);
+                            sprintf(buf, "iload %d\n", id_info->reg_num);
+                            strcpy(tmp, buffer);
+                            sprintf(buffer, "%s%s", tmp, buf);
                             break;
                         default:
                             break;
                     }
                 } else if (!strcmp(statement_stack[i], "ADD")){
-                    sprintf(buf, "iadd");
-                    genPrint(buf);
+                    sprintf(buf, "iadd\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 } else {
-                    sprintf(buf, "ldc %s", statement_stack[i]);
-                    genPrint(buf);
+                    sprintf(buf, "ldc %s\n", statement_stack[i]);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
             }
         }
         if((id_info = get_id_info(scope, statement_stack[stack_num - 1])) != NULL) {
             if(id_info->type == FLOAT) {
                 if(!float_flag) {
-                    sprintf(buf, "i2f");
-                    genPrint(buf);
+                    sprintf(buf, "i2f\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "fstore %s", id_info->reg_num);
-                    genPrint(buf);
+                    sprintf(buf, "fstore %s\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
             } else if(id_info->type == INT) {
                 if(float_flag) {
-                    sprintf(buf, "f2i");
-                    genPrint(buf);
+                    sprintf(buf, "f2i\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "istore %d", id_info->reg_num);
-                    genPrint(buf);
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
             }
         }
+        genPrint(buffer);
+        strcpy(buffer, "");
         printf("--------------------------------\n");    
     }
+    return strdup(buffer);
 }

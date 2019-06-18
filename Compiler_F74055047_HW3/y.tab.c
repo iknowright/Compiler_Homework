@@ -117,7 +117,7 @@ void custom_yyerror(char *s);
 int lookup_reg(int stop_scope);
 ID_INFO * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
-void printStatementStack();
+char * printStatementStack();
 
 int stack_num = 0;
 
@@ -591,16 +591,16 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   121,   121,   122,   126,   127,   128,   132,   151,   152,
-     155,   156,   157,   158,   159,   160,   164,   174,   175,   176,
-     180,   181,   182,   186,   198,   201,   202,   203,   219,   235,
-     251,   271,   275,   276,   277,   281,   285,   289,   293,   294,
-     298,   299,   306,   310,   338,   339,   340,   341,   342,   346,
-     347,   351,   352,   356,   357,   361,   362,   366,   367,   368,
-     372,   373,   374,   375,   379,   380,   381,   382,   383,   384,
-     388,   389,   390,   391,   392,   393,   397,   398,   399,   400,
-     404,   405,   406,   411,   412,   413,   417,   425,   426,   427,
-     428,   433,   437,   438,   439,   440
+       0,   122,   122,   123,   127,   128,   129,   133,   152,   153,
+     156,   157,   158,   159,   160,   161,   165,   175,   176,   177,
+     181,   182,   183,   187,   199,   202,   203,   204,   220,   236,
+     252,   272,   276,   277,   278,   282,   286,   290,   294,   295,
+     299,   300,   307,   311,   339,   340,   341,   342,   343,   347,
+     348,   352,   353,   357,   358,   362,   363,   367,   368,   369,
+     373,   374,   375,   376,   380,   381,   382,   383,   384,   385,
+     389,   390,   391,   392,   393,   394,   398,   399,   400,   401,
+     405,   406,   407,   412,   413,   414,   418,   426,   427,   428,
+     429,   434,   438,   439,   440,   441
 };
 #endif
 
@@ -1491,19 +1491,19 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 126 "compiler_hw3.y" /* yacc.c:1652  */
+#line 127 "compiler_hw3.y" /* yacc.c:1652  */
     { printStatementStack(); clearStatementStack(); }
 #line 1497 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 5:
-#line 127 "compiler_hw3.y" /* yacc.c:1652  */
+#line 128 "compiler_hw3.y" /* yacc.c:1652  */
     { printStatementStack(); clearStatementStack(); }
 #line 1503 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 7:
-#line 132 "compiler_hw3.y" /* yacc.c:1652  */
+#line 133 "compiler_hw3.y" /* yacc.c:1652  */
     {
         if(!forward_flag) {
             if(!lookup_symbol(scope, (yyvsp[-4].string), FUNCTION)) {
@@ -1523,20 +1523,44 @@ yyreduce:
 #line 1524 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 12:
-#line 157 "compiler_hw3.y" /* yacc.c:1652  */
-    { printStatementStack(); clearStatementStack(); }
+  case 10:
+#line 156 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup(""); }
 #line 1530 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 14:
-#line 159 "compiler_hw3.y" /* yacc.c:1652  */
-    { printStatementStack(); clearStatementStack(); }
+  case 11:
+#line 157 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup(""); }
 #line 1536 "y.tab.c" /* yacc.c:1652  */
     break;
 
+  case 12:
+#line 158 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string)=printStatementStack(); clearStatementStack(); }
+#line 1542 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 13:
+#line 159 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup(""); }
+#line 1548 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 14:
+#line 160 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string)=printStatementStack(); clearStatementStack(); }
+#line 1554 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 15:
+#line 161 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup(""); }
+#line 1560 "y.tab.c" /* yacc.c:1652  */
+    break;
+
   case 16:
-#line 164 "compiler_hw3.y" /* yacc.c:1652  */
+#line 165 "compiler_hw3.y" /* yacc.c:1652  */
     {     
             if(!lookup_symbol(scope, (yyvsp[-3].string), FUNCTION)) {
                 semantic_flag = 1;
@@ -1544,11 +1568,11 @@ yyreduce:
                 strcat(error_str, (yyvsp[-3].string));
             }
         }
-#line 1548 "y.tab.c" /* yacc.c:1652  */
+#line 1572 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 23:
-#line 186 "compiler_hw3.y" /* yacc.c:1652  */
+#line 187 "compiler_hw3.y" /* yacc.c:1652  */
     {
             strcpy(statement_stack[stack_num++],(yyvsp[-2].string));
             strcpy(statement_stack[stack_num++],(yyvsp[-3].string));
@@ -1558,23 +1582,23 @@ yyreduce:
                 strcat(error_str, (yyvsp[-3].string));
             }
         }
-#line 1562 "y.tab.c" /* yacc.c:1652  */
+#line 1586 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 25:
-#line 201 "compiler_hw3.y" /* yacc.c:1652  */
+#line 202 "compiler_hw3.y" /* yacc.c:1652  */
     { genPrintStrConst((yyvsp[-3].string)); }
-#line 1568 "y.tab.c" /* yacc.c:1652  */
+#line 1592 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 26:
-#line 202 "compiler_hw3.y" /* yacc.c:1652  */
+#line 203 "compiler_hw3.y" /* yacc.c:1652  */
     { genPrintConst((yyvsp[-2].string)); }
-#line 1574 "y.tab.c" /* yacc.c:1652  */
+#line 1598 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 27:
-#line 203 "compiler_hw3.y" /* yacc.c:1652  */
+#line 204 "compiler_hw3.y" /* yacc.c:1652  */
     {
             if(!lookup_symbol(scope, (yyvsp[-2].string), VARIABLE)) {
                 semantic_flag = 1;
@@ -1588,11 +1612,11 @@ yyreduce:
                 }
             }
         }
-#line 1592 "y.tab.c" /* yacc.c:1652  */
+#line 1616 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 28:
-#line 219 "compiler_hw3.y" /* yacc.c:1652  */
+#line 220 "compiler_hw3.y" /* yacc.c:1652  */
     {
         if(!lookup_symbol(scope, (yyvsp[-4].string), FUNCTION)) {
             int max_reg = lookup_reg(scope);
@@ -1606,11 +1630,11 @@ yyreduce:
         }
         forward_flag = 1;
     }
-#line 1610 "y.tab.c" /* yacc.c:1652  */
+#line 1634 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 29:
-#line 235 "compiler_hw3.y" /* yacc.c:1652  */
+#line 236 "compiler_hw3.y" /* yacc.c:1652  */
     {
             if(!lookup_symbol(scope, (yyvsp[-1].string), VARIABLE)) {
                 printf("IM IN VARIABLE DECLRATION WITHOUT VALUE\n");
@@ -1627,11 +1651,11 @@ yyreduce:
                 strcat(error_str, (yyvsp[-1].string));
             }
         }
-#line 1631 "y.tab.c" /* yacc.c:1652  */
+#line 1655 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 30:
-#line 251 "compiler_hw3.y" /* yacc.c:1652  */
+#line 252 "compiler_hw3.y" /* yacc.c:1652  */
     {
             if(!lookup_symbol(scope, (yyvsp[-3].string), VARIABLE)) {
                 printf("IM IN VARIABLE DECLRATION WITH VALUE\n");
@@ -1650,29 +1674,29 @@ yyreduce:
                 strcat(error_str, (yyvsp[-3].string));
             }
         }
-#line 1654 "y.tab.c" /* yacc.c:1652  */
+#line 1678 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 36:
-#line 285 "compiler_hw3.y" /* yacc.c:1652  */
+#line 286 "compiler_hw3.y" /* yacc.c:1652  */
     { scope++; }
-#line 1660 "y.tab.c" /* yacc.c:1652  */
+#line 1684 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 37:
-#line 289 "compiler_hw3.y" /* yacc.c:1652  */
+#line 290 "compiler_hw3.y" /* yacc.c:1652  */
     { dump_flag = 1; scope--; }
-#line 1666 "y.tab.c" /* yacc.c:1652  */
+#line 1690 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 40:
-#line 298 "compiler_hw3.y" /* yacc.c:1652  */
+#line 299 "compiler_hw3.y" /* yacc.c:1652  */
     { (yyval.string) = strdup((yyvsp[0].string)); }
-#line 1672 "y.tab.c" /* yacc.c:1652  */
+#line 1696 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 41:
-#line 299 "compiler_hw3.y" /* yacc.c:1652  */
+#line 300 "compiler_hw3.y" /* yacc.c:1652  */
     {
             char * tmp;
             tmp = strdup(", ");
@@ -1680,17 +1704,17 @@ yyreduce:
             strcat((yyvsp[-2].string), tmp);
             (yyval.string) = (yyvsp[-2].string);
         }
-#line 1684 "y.tab.c" /* yacc.c:1652  */
+#line 1708 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 42:
-#line 306 "compiler_hw3.y" /* yacc.c:1652  */
+#line 307 "compiler_hw3.y" /* yacc.c:1652  */
     { (yyval.string) = strdup(""); }
-#line 1690 "y.tab.c" /* yacc.c:1652  */
+#line 1714 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 43:
-#line 310 "compiler_hw3.y" /* yacc.c:1652  */
+#line 311 "compiler_hw3.y" /* yacc.c:1652  */
     {
         if(!forward_flag){
             int max_reg = lookup_reg(scope + 1);
@@ -1716,155 +1740,155 @@ yyreduce:
         }
         scope_index[scope+1]++;
     }
-#line 1720 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 44:
-#line 338 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.i_val) = VOID; }
-#line 1726 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 45:
-#line 339 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.i_val) = INT; }
-#line 1732 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 46:
-#line 340 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.i_val) = FLOAT; }
-#line 1738 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 47:
-#line 341 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.i_val) = BOOL; }
 #line 1744 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 48:
-#line 342 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.i_val) = STRING; }
+  case 44:
+#line 339 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.i_val) = VOID; }
 #line 1750 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 49:
-#line 346 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],(yyvsp[-1].string)); }
+  case 45:
+#line 340 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.i_val) = INT; }
 #line 1756 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 58:
-#line 367 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"ADD"); }
+  case 46:
+#line 341 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.i_val) = FLOAT; }
 #line 1762 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 59:
-#line 368 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"SUB"); }
+  case 47:
+#line 342 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.i_val) = BOOL; }
 #line 1768 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 61:
-#line 373 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"MUL"); }
+  case 48:
+#line 343 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.i_val) = STRING; }
 #line 1774 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 62:
-#line 374 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"DIV"); }
+  case 49:
+#line 347 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],(yyvsp[-1].string)); }
 #line 1780 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 63:
-#line 375 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"MOD"); }
+  case 58:
+#line 368 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"ADD"); }
 #line 1786 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 70:
-#line 388 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.string) = strdup((yyvsp[0].string)); }
+  case 59:
+#line 369 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"SUB"); }
 #line 1792 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 71:
-#line 389 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.string) = strdup((yyvsp[0].string)); }
+  case 61:
+#line 374 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"MUL"); }
 #line 1798 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 72:
-#line 390 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.string) = strdup((yyvsp[0].string)); }
+  case 62:
+#line 375 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"DIV"); }
 #line 1804 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 73:
-#line 391 "compiler_hw3.y" /* yacc.c:1652  */
-    { (yyval.string) = strdup((yyvsp[0].string)); }
+  case 63:
+#line 376 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"MOD"); }
 #line 1810 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 74:
-#line 392 "compiler_hw3.y" /* yacc.c:1652  */
+  case 70:
+#line 389 "compiler_hw3.y" /* yacc.c:1652  */
     { (yyval.string) = strdup((yyvsp[0].string)); }
 #line 1816 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 75:
-#line 393 "compiler_hw3.y" /* yacc.c:1652  */
+  case 71:
+#line 390 "compiler_hw3.y" /* yacc.c:1652  */
     { (yyval.string) = strdup((yyvsp[0].string)); }
 #line 1822 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 77:
-#line 398 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"INC"); }
+  case 72:
+#line 391 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup((yyvsp[0].string)); }
 #line 1828 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 78:
-#line 399 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"DEC"); }
+  case 73:
+#line 392 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup((yyvsp[0].string)); }
 #line 1834 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 80:
-#line 404 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"SUB"); }
+  case 74:
+#line 393 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup((yyvsp[0].string)); }
 #line 1840 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 81:
-#line 405 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"ADD"); }
+  case 75:
+#line 394 "compiler_hw3.y" /* yacc.c:1652  */
+    { (yyval.string) = strdup((yyvsp[0].string)); }
 #line 1846 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 82:
-#line 406 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"NOT"); }
+  case 77:
+#line 399 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"INC"); }
 #line 1852 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 84:
-#line 412 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"INC"); }
+  case 78:
+#line 400 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"DEC"); }
 #line 1858 "y.tab.c" /* yacc.c:1652  */
     break;
 
-  case 85:
-#line 413 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(statement_stack[stack_num++],"DEC"); }
+  case 80:
+#line 405 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"SUB"); }
 #line 1864 "y.tab.c" /* yacc.c:1652  */
     break;
 
+  case 81:
+#line 406 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"ADD"); }
+#line 1870 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 82:
+#line 407 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"NOT"); }
+#line 1876 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 84:
+#line 413 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"INC"); }
+#line 1882 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 85:
+#line 414 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(statement_stack[stack_num++],"DEC"); }
+#line 1888 "y.tab.c" /* yacc.c:1652  */
+    break;
+
   case 86:
-#line 417 "compiler_hw3.y" /* yacc.c:1652  */
+#line 418 "compiler_hw3.y" /* yacc.c:1652  */
     {  
             strcpy(statement_stack[stack_num++],(yyvsp[0].string));
             if(!lookup_symbol(scope, (yyvsp[0].string), VARIABLE)) {
@@ -1873,35 +1897,35 @@ yyreduce:
                 strcat(error_str, (yyvsp[0].string));
             }
         }
-#line 1877 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 92:
-#line 437 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1883 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 93:
-#line 438 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1889 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 94:
-#line 439 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1895 "y.tab.c" /* yacc.c:1652  */
-    break;
-
-  case 95:
-#line 440 "compiler_hw3.y" /* yacc.c:1652  */
-    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
 #line 1901 "y.tab.c" /* yacc.c:1652  */
     break;
 
+  case 92:
+#line 438 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
+#line 1907 "y.tab.c" /* yacc.c:1652  */
+    break;
 
-#line 1905 "y.tab.c" /* yacc.c:1652  */
+  case 93:
+#line 439 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
+#line 1913 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 94:
+#line 440 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
+#line 1919 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+  case 95:
+#line 441 "compiler_hw3.y" /* yacc.c:1652  */
+    { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
+#line 1925 "y.tab.c" /* yacc.c:1652  */
+    break;
+
+
+#line 1929 "y.tab.c" /* yacc.c:1652  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2132,7 +2156,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 443 "compiler_hw3.y" /* yacc.c:1918  */
+#line 444 "compiler_hw3.y" /* yacc.c:1918  */
 
 
 /* C code section */
@@ -2367,9 +2391,13 @@ void clearStatementStack()
     stack_num = 0;
 }
 
-void printStatementStack()
+char * printStatementStack()
 {
+    char buffer[1000];
+    char tmp[1000];    
     char buf[100];
+    strcpy(buffer, "");
+    strcpy(tmp, "");
     if(scope && stack_num > 0 && !semantic_flag) {     
         printf("--------------------------------\n");
         printf("Scope %d\n\n", scope);
@@ -2378,7 +2406,7 @@ void printStatementStack()
         for(int i = 0; i < stack_num; i++) {
             printf("%s ", statement_stack[i]);
         }
-        printf("\n\nStack Size %d\n", stack_num);
+        printf("\n\nStack size %d\n", stack_num);
         printf("Semantic flag %d\n", semantic_flag);
         for(int i = 0; i < stack_num - 2; i++) {
             if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
@@ -2395,17 +2423,14 @@ void printStatementStack()
                 }                               
             }
         }
-        printf("float flag %d\n", float_flag);
+        printf("Float flag %d\n", float_flag);
         for(int i = 0; i < stack_num - 2; i++) {                 
             if(float_flag) {
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
-                        case INT:
-                            // fprintf(file, "iload %d\n", id_info->reg_num);
-                            // fprintf(file, "i2f\n");                           
+                        case INT:                          
                             break;
                         case FLOAT:
-                            // fprintf(file, "fload %d\n", id_info->reg_num);
                             break;
                         default:
                             break;
@@ -2418,55 +2443,60 @@ void printStatementStack()
                             break;
                         }
                     }
-                    if(is_float) {
-                        // fprintf(file, "ldc %s\n", statement_stack[i]);                        
-                    } else {
-                        // fprintf(file, "ldc %s\n", statement_stack[i]);
-                        // fprintf(file, "i2f\n");                                                                                                  
+                    if(is_float) {                 
+                    } else {                                                                                             
                     }
                 }
             } else {
-                sprintf(buf, "%s\n", statement_stack[i]);
-                genPrint(buf);
                 if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                     switch(id_info->type) {
                         case INT:
-                            sprintf(buf, "iload %d", id_info->reg_num);
-                            genPrint(buf);
+                            sprintf(buf, "iload %d\n", id_info->reg_num);
+                            strcpy(tmp, buffer);
+                            sprintf(buffer, "%s%s", tmp, buf);
                             break;
                         default:
                             break;
                     }
                 } else if (!strcmp(statement_stack[i], "ADD")){
-                    sprintf(buf, "iadd");
-                    genPrint(buf);
+                    sprintf(buf, "iadd\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 } else {
-                    sprintf(buf, "ldc %s", statement_stack[i]);
-                    genPrint(buf);
+                    sprintf(buf, "ldc %s\n", statement_stack[i]);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
             }
         }
         if((id_info = get_id_info(scope, statement_stack[stack_num - 1])) != NULL) {
             if(id_info->type == FLOAT) {
                 if(!float_flag) {
-                    sprintf(buf, "i2f");
-                    genPrint(buf);
+                    sprintf(buf, "i2f\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "fstore %s", id_info->reg_num);
-                    genPrint(buf);
+                    sprintf(buf, "fstore %s\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
             } else if(id_info->type == INT) {
                 if(float_flag) {
-                    sprintf(buf, "f2i");
-                    genPrint(buf);
+                    sprintf(buf, "f2i\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "istore %d", id_info->reg_num);
-                    genPrint(buf);
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 }
             }
         }
+        genPrint(buffer);
+        strcpy(buffer, "");
         printf("--------------------------------\n");    
     }
+    return strdup(buffer);
 }
