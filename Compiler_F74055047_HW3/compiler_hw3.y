@@ -760,7 +760,7 @@ char * printStatementStack()
                     switch(id_info->type) {
                         case INT:
                             if(id_info->scope == 0) {
-                                sprintf(buf, "getstatic compiler_hw3/%s\n", statement_stack[i]);
+                                sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
                                 strcpy(tmp, buffer);
                                 sprintf(buffer, "%s%s", tmp, buf);                                
                             } else {
