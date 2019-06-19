@@ -295,7 +295,7 @@ left_brace
 ;
 
 right_brace
-    : RCB { dump_flag = 1; scope--; printf("im at right braces\n"); }
+    : RCB { dump_flag = 1; scope--; }
 ;
 
 expression
