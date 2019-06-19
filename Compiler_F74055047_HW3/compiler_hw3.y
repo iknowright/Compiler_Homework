@@ -786,6 +786,18 @@ char * printStatementStack()
                     sprintf(buf, "fadd\n");
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "SUB")){
+                    sprintf(buf, "fsub\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "MUL")){
+                    sprintf(buf, "fmul\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "DIV")){
+                    sprintf(buf, "fdiv\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 } else {
                     int is_float = 0;
                     for(int j  = 0; j < strlen(statement_stack[i]); j++) {
@@ -860,7 +872,19 @@ char * printStatementStack()
             }
         }
         if((id_info = get_id_info(scope, statement_stack[stack_num - 1])) != NULL) {
-            if(id_info->type == FLOAT) {
+            if(id_info->type == STRING) {
+                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                    sprintf(buf, "astore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                }
+            } else if(id_info->type == BOOL) {
+                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                }
+            } else if(id_info->type == FLOAT) {
                 if(!float_flag) {
                     sprintf(buf, "i2f\n");
                     strcpy(tmp, buffer);
@@ -870,16 +894,20 @@ char * printStatementStack()
                     sprintf(buf, "fstore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                }
-            } else if(id_info->type == STRING) {
-                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "astore %d\n", id_info->reg_num);
+                } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
+                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfadd\nfstore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                }
-            } else if(id_info->type == BOOL) {
-                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
+                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfsub\nfstore %d\n", id_info->reg_num, id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
+                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfmul\nfstore %d\n", id_info->reg_num, id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
+                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfdiv\nfstore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
@@ -894,38 +922,23 @@ char * printStatementStack()
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "iadd\nistore %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\niadd\nistore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "isub\nistore %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\nisub\nistore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "imul\nistore %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\nimul\nistore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "idiv\nistore %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\nidiv\nistore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "MODASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "irem\nistore %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\nirem\nistore %d\n", id_info->reg_num, id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
