@@ -1,9 +1,8 @@
-int a = 6;
+float a = 6;
 int b;
 void main() {
-    int d;
+    float d = 2;
     d = a + 6;
     print(d);
-    print(f);
     return;
 }

@@ -25,12 +25,29 @@ void genVarDeclr(char * id, int type)
 void genVarDeclrVal(char * id, int type, char * value)
 {
     file = fopen("compiler_hw3.j","a");
+    int value_float_flag = 0;
+    for(int i = 0; i < strlen(value); i++) {
+        if(value[i] == '.') {
+            value_float_flag = 1;
+            break;
+        }
+    }
     switch(type) {
         case FLOAT:
-            fprintf(file, ".field public static %s F = %s\n", id, value);
+            if(!value_float_flag) {
+                fprintf(file, ".field public static %s F = %s.0\n", id, value);
+            } else {
+                fprintf(file, ".field public static %s F = %s\n", id, value);                
+            }
             break;
         case INT:
-            fprintf(file, ".field public static %s I = %s\n", id, value);
+            if(value_float_flag) {
+                float f = atof(value);
+                int i = (int)f;
+                fprintf(file, ".field public static %s I = %d\n", id, i);
+            } else {
+                fprintf(file, ".field public static %s I = %d\n", id, value);                
+            }
             break;
         case BOOL:
             fprintf(file, ".field public static %s Z = %s\n", id, value);

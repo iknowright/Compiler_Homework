@@ -836,6 +836,22 @@ char * printStatementStack()
                     sprintf(buf, "iadd\n");
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "SUB")){
+                    sprintf(buf, "isub\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "MUL")){
+                    sprintf(buf, "imul\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "DIV")){
+                    sprintf(buf, "idiv\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                } else if (!strcmp(statement_stack[i], "MOD")){
+                    sprintf(buf, "irem\n");
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
                 } else {
                     sprintf(buf, "ldc %s\n", statement_stack[i]);
                     strcpy(tmp, buffer);
@@ -878,53 +894,38 @@ char * printStatementStack()
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
-                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "iadd\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    sprintf(buf, "iadd\nistore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
-                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "isub\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    sprintf(buf, "isub\nistore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
-                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "imul\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    sprintf(buf, "imul\nistore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
-                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "idiv\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    sprintf(buf, "idiv\nistore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 } else if(!strcmp(statement_stack[stack_num - 2], "MODASGN")) {
-                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                    sprintf(buf, "istore 40\niload %d\niload 40\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "irem\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
+                    sprintf(buf, "irem\nistore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
