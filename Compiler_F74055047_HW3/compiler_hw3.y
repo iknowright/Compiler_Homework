@@ -247,7 +247,6 @@ variable_declaration
                 int max_reg = lookup_reg(scope);
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
                 if(scope == 0) {
-                    printf("id = %s, type = %d\n", $2, $1);
                     genVarDeclr($2, $1);
                 }
                 scope_index[scope]++;
