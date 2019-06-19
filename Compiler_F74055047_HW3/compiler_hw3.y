@@ -45,6 +45,7 @@ Node * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
 char * printStatementStack();
 int is_global(char * id);
+char * getParamTypes(int scope);
 
 int stack_num = 0;
 
@@ -130,11 +131,11 @@ function
             if(!lookup_symbol(scope, $2, FUNCTION)) {
                 int max_reg = lookup_reg(scope);
                 insert_symbol(&table[scope], scope_index[scope], $2, FUNCTION, $1, scope, $4, 0, max_reg + 1);
-                strcpy($4, "");
                 scope_index[scope]++;
-
-                genFunction($2, $6, $1);
-
+                char  * param = getParamTypes(scope + 1);
+                printf("PARAMETER = %s\n", param);
+                genFunction($2, $6, $1, param);
+                strcpy($4, "");
             } else if(lookup_symbol(scope, $2, FUNCTION) == 1){
                 semantic_flag = 1;
                 strcpy(error_str, "Redeclared function ");
@@ -284,7 +285,9 @@ if_statement
 ;
 
 block_body
-    : left_brace stats right_brace { printf("where are you stats : \n%s\n", $2); $$ = $2;}
+    : left_brace stats right_brace { 
+        printf("where are you stats : \n%s\n", $2);$$ = $2;    
+    }
 ;
 
 left_brace
@@ -667,6 +670,39 @@ Node * get_id_info(int curr_scope, char * id)
         }
     }
     return the_node;
+}
+
+char * getParamTypes(int scope)
+{
+    Node * tmp = table[scope];
+    char param[10];
+    strcpy(param, "");
+    if(tmp != NULL) {
+        while(tmp->next != NULL) {
+            if(tmp->kind == PARAMETER) {
+                if(tmp->type == INT) {
+                    strcat(param, "I");
+                } else if(tmp->type == FLOAT) {
+                    strcat(param, "F");                    
+                } else if(tmp->type == BOOL) {
+                    strcat(param, "Z");                    
+                }
+            }
+            tmp = tmp->next;
+        }
+        if(tmp->kind == PARAMETER) {
+            if(tmp->kind == PARAMETER) {
+                if(tmp->type == INT) {
+                    strcat(param, "I");                    
+                } else if(tmp->type == FLOAT) {
+                    strcat(param, "F");                    
+                } else if(tmp->type == BOOL) {
+                    strcat(param, "Z");                    
+                }
+            }   
+        }
+    }
+    return strdup(param);
 }
 
 void clearStatementStack()

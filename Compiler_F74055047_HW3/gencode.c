@@ -227,7 +227,7 @@ char * genPrintID(int reg, int type, int scope, char * id) {
     return strdup(buffer);
 }
 
-void genFunction(char * id, char * body, int type)
+void genFunction(char * id, char * body, int type, char * param)
 {
     file = fopen("compiler_hw3.j","a");
     if(!strcmp(id, "main")) {
@@ -235,6 +235,31 @@ void genFunction(char * id, char * body, int type)
         fprintf(file, "%s\n", body);
         fprintf(file, "return\n");        
         fprintf(file, ".end method\n");        
+    } else {
+        if(type == INT) {
+            fprintf(file, ".method public static %s(%s)I\n.limit stack 50\n.limit locals 50\n", id, param);
+        } else if(type == FLOAT) {
+            fprintf(file, ".method public static %s(%s)F\n.limit stack 50\n.limit locals 50\n", id, param);
+        } else if(type == STRING) {
+            fprintf(file, ".method public static %s(%s)Ljava/lang/String;\n.limit stack 50\n.limit locals 50\n", id, param);
+        } else if(type == BOOL) {
+            fprintf(file, ".method public static %s(%s)Z\n.limit stack 50\n.limit locals 50\n", id, param);
+        } else if(type == VOID) {
+            fprintf(file, ".method public static %s(%s)V\n.limit stack 50\n.limit locals 50\n", id, param);
+        }
+        fprintf(file, "%s\n", body);
+        if(type == INT) {
+            fprintf(file, "ireturn\n"); 
+        } else if(type == FLOAT) {
+            fprintf(file, "freturn\n"); 
+        } else if(type == STRING) {
+            fprintf(file, "areturn\n"); 
+        } else if(type == BOOL) {
+            fprintf(file, "ireturn\n"); 
+        } else if(type == VOID) {
+            fprintf(file, "return\n");        
+        }
+        fprintf(file, ".end method\n\n\n");    
     }
     fclose(file);
 }
