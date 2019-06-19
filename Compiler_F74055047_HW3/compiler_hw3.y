@@ -427,7 +427,7 @@ primary_expression
             if(!lookup_symbol(scope, $1, VARIABLE)) {
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared variable ");
-                strcat(error_str, $1);
+                strcat(error_str, $1);      
             }
         }
 	| constant
