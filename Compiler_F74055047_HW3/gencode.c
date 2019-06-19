@@ -13,6 +13,9 @@ void genVarDeclr(char * id, int type)
         case BOOL:
             fprintf(file, ".field public static %s Z\n", id);
             break;
+        case STRING:
+            fprintf(file, ".field public static %s Ljava/lang/String;\n", id);
+            break;
         default: break;
     }
     fclose(file);
@@ -31,6 +34,9 @@ void genVarDeclrVal(char * id, int type, char * value)
             break;
         case BOOL:
             fprintf(file, ".field public static %s Z = %s\n", id, value);
+            break;
+        case STRING:
+            fprintf(file, ".field public static %s Ljava/lang/String; = %s\n", id, value);
             break;
         default: break;
     }
@@ -130,7 +136,7 @@ char * genPrintID(int reg, int type, int scope, char * id) {
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);               
             } else {
-                sprintf(buf, "iload %d\n", reg);
+                sprintf(buf, "aload %d\n", reg);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             }

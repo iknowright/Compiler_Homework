@@ -601,7 +601,7 @@ static const yytype_uint16 yyrline[] =
      380,   381,   382,   383,   387,   388,   389,   390,   391,   392,
      396,   397,   398,   399,   400,   401,   405,   406,   407,   408,
      412,   413,   414,   419,   420,   421,   425,   433,   434,   435,
-     436,   441,   445,   446,   447,   448
+     436,   441,   450,   451,   452,   453
 };
 #endif
 
@@ -1925,32 +1925,43 @@ yyreduce:
 #line 1926 "y.tab.c" /* yacc.c:1652  */
     break;
 
+  case 91:
+#line 441 "compiler_hw3.y" /* yacc.c:1652  */
+    {
+        char the_string[100];
+        sprintf(the_string, "\"%s\"", (yyvsp[-1].string));
+        strcpy(global_value, the_string);
+        strcpy(statement_stack[stack_num++],the_string);
+    }
+#line 1937 "y.tab.c" /* yacc.c:1652  */
+    break;
+
   case 92:
-#line 445 "compiler_hw3.y" /* yacc.c:1652  */
+#line 450 "compiler_hw3.y" /* yacc.c:1652  */
     { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1932 "y.tab.c" /* yacc.c:1652  */
+#line 1943 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 93:
-#line 446 "compiler_hw3.y" /* yacc.c:1652  */
+#line 451 "compiler_hw3.y" /* yacc.c:1652  */
     { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1938 "y.tab.c" /* yacc.c:1652  */
+#line 1949 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 94:
-#line 447 "compiler_hw3.y" /* yacc.c:1652  */
+#line 452 "compiler_hw3.y" /* yacc.c:1652  */
     { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1944 "y.tab.c" /* yacc.c:1652  */
+#line 1955 "y.tab.c" /* yacc.c:1652  */
     break;
 
   case 95:
-#line 448 "compiler_hw3.y" /* yacc.c:1652  */
+#line 453 "compiler_hw3.y" /* yacc.c:1652  */
     { strcpy(global_value, (yyvsp[0].string)); (yyval.string) = strdup((yyvsp[0].string)); strcpy(statement_stack[stack_num++],(yyvsp[0].string)); }
-#line 1950 "y.tab.c" /* yacc.c:1652  */
+#line 1961 "y.tab.c" /* yacc.c:1652  */
     break;
 
 
-#line 1954 "y.tab.c" /* yacc.c:1652  */
+#line 1965 "y.tab.c" /* yacc.c:1652  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2181,7 +2192,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 451 "compiler_hw3.y" /* yacc.c:1918  */
+#line 456 "compiler_hw3.y" /* yacc.c:1918  */
 
 
 /* C code section */
@@ -2553,7 +2564,14 @@ char * printStatementStack()
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "fstore %s\n", id_info->reg_num);
+                    sprintf(buf, "fstore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                }
+            } else if(id_info->type == STRING) {
+                printf("STRING is here\n");
+                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                    sprintf(buf, "astore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
@@ -2611,13 +2629,13 @@ char * printStatementStack()
                     sprintf(buf, "iload %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                    sprintf(buf, "imod\n");
+                    sprintf(buf, "irem\n");
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                     sprintf(buf, "istore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
-                } 
+                }
             }
         }
         printf("--------------------------------\n");    
