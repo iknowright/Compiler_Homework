@@ -802,6 +802,17 @@ char * printStatementStack()
                                 sprintf(buffer, "%s%s", tmp, buf);
                             }
                             break;
+                        case BOOL:
+                            if(id_info->scope == 0) {
+                                sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);                                
+                            } else {
+                                sprintf(buf, "iload %d\n", id_info->reg_num);
+                                strcpy(tmp, buffer);
+                                sprintf(buffer, "%s%s", tmp, buf);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -829,9 +840,14 @@ char * printStatementStack()
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
             } else if(id_info->type == STRING) {
-                printf("STRING is here\n");
                 if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
                     sprintf(buf, "astore %d\n", id_info->reg_num);
+                    strcpy(tmp, buffer);
+                    sprintf(buffer, "%s%s", tmp, buf);
+                }
+            } else if(id_info->type == BOOL) {
+                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                    sprintf(buf, "istore %d\n", id_info->reg_num);
                     strcpy(tmp, buffer);
                     sprintf(buffer, "%s%s", tmp, buf);
                 }
