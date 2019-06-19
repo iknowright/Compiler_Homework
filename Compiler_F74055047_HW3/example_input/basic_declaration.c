@@ -4,6 +4,6 @@ void main() {
     int d;
     d = a + 6;
     print(d);
-    print(g);
+    print(f);
     return;
 }

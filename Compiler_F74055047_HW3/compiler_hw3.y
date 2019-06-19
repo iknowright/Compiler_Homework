@@ -248,6 +248,8 @@ variable_declaration
                 insert_symbol(&table[scope], scope_index[scope], $2, VARIABLE, $1, scope, "", 0, max_reg + 1);
                 if(scope == 0) {
                     genVarDeclr($2, $1);
+                } else {
+                    strcpy(statement_stack[stack_num++],$2);
                 }
                 scope_index[scope]++;
             } else {
@@ -714,12 +716,27 @@ char * printStatementStack()
         printf("--------------------------------\n");
         printf("Scope %d\n\n", scope);
         int float_flag = 0;
-        ID_INFO * id_info;
+        ID_INFO * id_info;    
         for(int i = 0; i < stack_num; i++) {
             printf("%s ", statement_stack[i]);
         }
         printf("\n\nStack size %d\n", stack_num);
         printf("Semantic flag %d\n", semantic_flag);
+        // Only Declaration
+        if(stack_num == 1) {
+            if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
+                if(id_info->type == FLOAT) {
+                    sprintf(buffer, "ldc 0.0\nfstore %d\n", id_info->reg_num);
+                } else if(id_info->type == INT) {
+                    sprintf(buffer, "ldc 0\nistore %d\n", id_info->reg_num);
+                } else if(id_info->type == BOOL) {
+                    sprintf(buffer, "ldc 0\nistore %d\n", id_info->reg_num);
+                } else if(id_info->type == STRING) {
+                    sprintf(buffer, "ldc \"\"\nastore %d\n", id_info->reg_num);
+                }
+            }
+            return strdup(buffer);
+        }
         for(int i = 0; i < stack_num - 2; i++) {
             if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
                 if(id_info->type == FLOAT) {
