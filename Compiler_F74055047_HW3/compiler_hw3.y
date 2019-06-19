@@ -29,12 +29,6 @@ Node * table[100] = { NULL };
 
 int scope_index[100];
 
-typedef struct ID_INFO {
-    int scope;
-    int type;
-    int reg_num;
-} ID_INFO;
-
 extern int yylineno;
 extern int yylex();
 extern char* yytext;   // Get current token from lex
@@ -47,7 +41,7 @@ void dump_symbol(int scope);
 int lookup_symbol(int scope, char * name, kindEnum kind);
 void custom_yyerror(char *s);
 int lookup_reg(int stop_scope);
-ID_INFO * get_id_info(int curr_scope, char * id);
+Node * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
 char * printStatementStack();
 int is_global(char * id);
@@ -162,12 +156,12 @@ stats
     | { $$ = strdup(""); }
 
 stat
-    : while_statement { $$ = strdup(""); }
-    | if_statement { $$ = strdup(""); }
+    : while_statement { $$ = strdup(""); clearStatementStack();}
+    | if_statement { $$ = strdup(""); clearStatementStack();}
     | variable_declaration { $$=printStatementStack(); clearStatementStack(); }
     | printf_statement { $$ = $1; }
     | expression_statement { $$=printStatementStack(); clearStatementStack(); }
-    | return_statement { $$ = strdup(""); }
+    | return_statement { $$ = strdup(""); clearStatementStack();}
 ;
 
 function_call
@@ -176,6 +170,9 @@ function_call
                 semantic_flag = 1;
                 strcpy(error_str, "Undeclared function ");
                 strcat(error_str, $1);
+
+            } else {
+                strcpy(statement_stack[stack_num++],$1);
             }
         }
 ;
@@ -217,7 +214,7 @@ printf_statement
                 strcat(error_str, $3);
                 $$ = strdup("");
             } else {              
-                ID_INFO * id_info = get_id_info(scope, $3);
+                Node * id_info = get_id_info(scope, $3);
                 if(id_info != NULL) {                
                     $$ = genPrintID(id_info->reg_num, id_info->type, id_info->scope, $3);
                 }
@@ -651,28 +648,21 @@ void enum_to_string(char * stringkind, char * stringtype, int kind, int type)
     }
 }
 
-ID_INFO * get_id_info(int curr_scope, char * id)
+Node * get_id_info(int curr_scope, char * id)
 {
-    int i;
-    file = fopen("compiler_hw3.j","a");    
-    ID_INFO * the_node = NULL;
+    int i;   
+    Node * the_node = NULL;
     for(i = curr_scope; i >= 0; i--) {
         if(table[i] != NULL) {
             Node * tmp = table[i];
             while(tmp->next != NULL) {
                 if(!strcmp(tmp->name, id)) {
-                    the_node = (ID_INFO *)malloc(sizeof(ID_INFO));
-                    the_node->type = tmp->type;
-                    the_node->reg_num = tmp->reg_num;
-                    the_node->scope = tmp->scope;
+                    the_node = tmp;
                 }
                 tmp = tmp->next;
             }
             if(!strcmp(tmp->name, id)) {
-                the_node = (ID_INFO *)malloc(sizeof(ID_INFO));
-                the_node->type = tmp->type;
-                the_node->reg_num = tmp->reg_num;
-                the_node->scope = tmp->scope;
+                the_node = tmp;
             }
         }
     }
@@ -716,7 +706,7 @@ char * printStatementStack()
         printf("--------------------------------\n");
         printf("Scope %d\n\n", scope);
         int float_flag = 0;
-        ID_INFO * id_info;    
+        Node * id_info;    
         for(int i = 0; i < stack_num; i++) {
             printf("%s ", statement_stack[i]);
         }

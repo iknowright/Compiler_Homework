@@ -1,4 +1,4 @@
-int foo(int a) {
+int foo(int a, int b) {
    a += 6;
    return a;
 }
@@ -10,7 +10,7 @@ void lol(int a) {
 
 void main(){
    int a;
-   a = foo(4);
+   a = foo(4, 5);
    lol(a);
    return;
 }
