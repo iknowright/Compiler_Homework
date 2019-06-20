@@ -3,7 +3,7 @@ void main(){
     while (a < 6) {
         print(a);
         a++;
-    }
+    }   
     return;
 }
 

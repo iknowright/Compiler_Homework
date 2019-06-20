@@ -1246,48 +1246,6 @@ char * doRelational()
     strcpy(tmp, buffer);
     sprintf(buffer, "%s%s", tmp, buf);
     // latter
-    if(float_flag) {
-        if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
-            if(id_info->type == FLOAT) {
-                sprintf(buf, "fload %d\n", id_info->reg_num);
-                strcpy(tmp, buffer);
-                sprintf(buffer, "%s%s", tmp, buf);
-            } else if(id_info->type == INT){
-                sprintf(buf, "i2f\nfload %d\n", id_info->reg_num);
-                strcpy(tmp, buffer);
-                sprintf(buffer, "%s%s", tmp, buf);
-            }
-        } else {
-            int flag = 0;
-            for(int j  = 0; j < strlen(statement_stack[2]); j++) {
-                if(statement_stack[2][j] == '.') {
-                    flag = 1;
-                    break;
-                }
-            }
-            if(flag) {
-                sprintf(buf, "ldc %s\n", statement_stack[2]);
-                strcpy(tmp, buffer);
-                sprintf(buffer, "%s%s", tmp, buf);
-            } else {
-                sprintf(buf, "ldc %s\ni2f\n", statement_stack[2]);
-                strcpy(tmp, buffer);
-                sprintf(buffer, "%s%s", tmp, buf);
-            }
-        }
-    } else {
-        if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
-            if(id_info->type == INT){
-                sprintf(buf, "iload %d\n", id_info->reg_num);
-                strcpy(tmp, buffer);
-                sprintf(buffer, "%s%s", tmp, buf);
-            }
-        } else {
-            sprintf(buf, "ldc %s\n", statement_stack[2]);
-            strcpy(tmp, buffer);
-            sprintf(buffer, "%s%s", tmp, buf);
-        }
-    }
     // Former
     if(float_flag) {
         if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
@@ -1327,6 +1285,48 @@ char * doRelational()
             }
         } else {
             sprintf(buf, "ldc\n", statement_stack[0]);
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+        }
+    }
+    if(float_flag) {
+        if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
+            if(id_info->type == FLOAT) {
+                sprintf(buf, "fload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else if(id_info->type == INT){
+                sprintf(buf, "i2f\nfload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        } else {
+            int flag = 0;
+            for(int j  = 0; j < strlen(statement_stack[2]); j++) {
+                if(statement_stack[2][j] == '.') {
+                    flag = 1;
+                    break;
+                }
+            }
+            if(flag) {
+                sprintf(buf, "ldc %s\n", statement_stack[2]);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else {
+                sprintf(buf, "ldc %s\ni2f\n", statement_stack[2]);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        }
+    } else {
+        if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
+            if(id_info->type == INT){
+                sprintf(buf, "iload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        } else {
+            sprintf(buf, "ldc %s\n", statement_stack[2]);
             strcpy(tmp, buffer);
             sprintf(buffer, "%s%s", tmp, buf);
         }
