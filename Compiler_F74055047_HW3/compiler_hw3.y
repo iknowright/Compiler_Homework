@@ -48,6 +48,7 @@ int is_global(char * id);
 char * getParamTypes(int scope);
 char * get_attribute(char * attr);
 char * doRelational();
+char * printWhile(char * relation, char * body);
 
 int stack_num = 0;
 int while_index = 0;
@@ -107,6 +108,7 @@ char statement_stack[100][100];
 %type <string> parameter_list parameter
 %type <string> constant assignment_operator
 %type <string> stat stats printf_statement block_body expression_statement return_statement relation
+%type <string> while_statement
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -157,7 +159,7 @@ stats
     | { $$ = strdup(""); }
 
 stat
-    : while_statement { $$ = strdup(""); clearStatementStack();}
+    : while_statement { $$ = $1; clearStatementStack();}
     | if_statement { $$ = strdup(""); clearStatementStack();}
     | variable_declaration { $$=printStatementStack("assignment"); clearStatementStack(); }
     | printf_statement { $$ = $1; }
@@ -284,13 +286,14 @@ variable_declaration
 
 while_statement
     : WHILE LB relation RB block_body {
-
+        $$=printWhile($3, $5);
+        while_index --;
     }
 ;
 
 relation
     : expression {
-        genPrint(doRelational()); clearStatementStack();
+        $$=doRelational(); clearStatementStack();
     }
 ;
 
@@ -420,8 +423,8 @@ assignment_operator
 
 unary_expression
     : postfix_expression
-	| INC unary_expression { strcpy(statement_stack[stack_num++],"INC"); }
-	| DEC unary_expression { strcpy(statement_stack[stack_num++],"DEC"); }
+	| INC unary_expression { strcpy(statement_stack[stack_num++],"preINC"); }
+	| DEC unary_expression { strcpy(statement_stack[stack_num++],"preDEC"); }
     | unary_operator unary_expression
 ;
 
@@ -434,8 +437,8 @@ unary_operator
 
 postfix_expression
     : primary_expression
-    | postfix_expression INC { strcpy(statement_stack[stack_num++],"INC"); }
-	| postfix_expression DEC { strcpy(statement_stack[stack_num++],"DEC"); }
+    | postfix_expression INC { strcpy(statement_stack[stack_num++],"postINC"); }
+	| postfix_expression DEC { strcpy(statement_stack[stack_num++],"postDEC"); }
 ;
 
 primary_expression
@@ -749,6 +752,7 @@ int is_global(char * id) {
 
 char * printStatementStack(char * method)
 {
+    int previous_reg = 0;
     char buffer[1000];
     char tmp[1000];    
     char buf[100];
@@ -1080,6 +1084,7 @@ char * printStatementStack(char * method)
                     }
                 } else {
                     if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                        previous_reg = id_info->reg_num;
                         switch(id_info->type) {
                             case INT:
                                 if(id_info->scope == 0) {
@@ -1151,7 +1156,23 @@ char * printStatementStack(char * method)
                         sprintf(buf, "irem\n");
                         strcpy(tmp, buffer);
                         sprintf(buffer, "%s%s", tmp, buf);
-                    } else {
+                    } else if (!strcmp(statement_stack[i], "postINC")){
+                        sprintf(buf, "istore 40\nldc 1\niload 40\niadd\nistore %d\n", previous_reg, previous_reg);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "postSUB")){
+                        sprintf(buf, "istore 40\nldc 1\niload 40\nisub\nistore %d\n", previous_reg, previous_reg);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "preINC")){
+                        sprintf(buf, "istore 40\nldc 1\niload 40\niadd\nistore %d\n", previous_reg, previous_reg);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "preSUB")){
+                        sprintf(buf, "istore 40\nldc 1\niload 40\nisub\nistore %d\n", previous_reg, previous_reg);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }else {
                         sprintf(buf, "ldc %s\n", statement_stack[i]);
                         strcpy(tmp, buffer);
                         sprintf(buffer, "%s%s", tmp, buf);
@@ -1221,18 +1242,18 @@ char * doRelational()
     }
     printf("Float flag %d\n", float_flag);
     // while label
-    sprintf(buf, "WHILE_LABEL_%d\n", while_index);
+    sprintf(buf, "LABEL_BEGIN:\n");
     strcpy(tmp, buffer);
     sprintf(buffer, "%s%s", tmp, buf);
     // latter
     if(float_flag) {
         if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
             if(id_info->type == FLOAT) {
-                sprintf(buf, "fload\n");
+                sprintf(buf, "fload %d\n", id_info->reg_num);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             } else if(id_info->type == INT){
-                sprintf(buf, "i2f\nfload\n");
+                sprintf(buf, "i2f\nfload %d\n", id_info->reg_num);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             }
@@ -1257,7 +1278,7 @@ char * doRelational()
     } else {
         if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
             if(id_info->type == INT){
-                sprintf(buf, "iload\n");
+                sprintf(buf, "iload %d\n", id_info->reg_num);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             }
@@ -1271,11 +1292,11 @@ char * doRelational()
     if(float_flag) {
         if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
             if(id_info->type == FLOAT) {
-                sprintf(buf, "fload\n");
+                sprintf(buf, "fload %d\n", id_info->reg_num);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             } else if(id_info->type == INT){
-                sprintf(buf, "i2f\nfload\n");
+                sprintf(buf, "i2f\nfload %d\n", id_info->reg_num);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             }
@@ -1300,7 +1321,7 @@ char * doRelational()
     } else {
         if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
             if(id_info->type == INT){
-                sprintf(buf, "iload\n");
+                sprintf(buf, "iload %d\n", id_info->reg_num);
                 strcpy(tmp, buffer);
                 sprintf(buffer, "%s%s", tmp, buf);
             }
@@ -1322,31 +1343,40 @@ char * doRelational()
     }
     // relational
     if (!strcmp(statement_stack[1], "MT")){
-        sprintf(buf, "ifle EXIT_WHILE_%d\n", while_index);
+        sprintf(buf, "ifle LABEL_FALSE\ngoto LABEL_TRUE\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "LT")){
-        sprintf(buf, "ifge EXIT_WHILE_%d\n", while_index);
+        sprintf(buf, "ifge LABEL_FALSE\ngoto LABEL_TRUE\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "MTE")){
-        sprintf(buf, "iflt EXIT_WHILE_%d\n", while_index);
+        sprintf(buf, "iflt LABEL_FALSE\ngoto LABEL_TRUE\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "LTE")){
-        sprintf(buf, "ifgt EXIT_WHILE_%d\n", while_index);
+        sprintf(buf, "ifgt LABEL_FALSE\ngoto LABEL_TRUE\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "EQ")){
-        sprintf(buf, "ifne EXIT_WHILE_%d\n", while_index);
+        sprintf(buf, "ifne LABEL_FALSE\ngoto LABEL_TRUE\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "NE")){
-        sprintf(buf, "ifeg EXIT_WHILE_%d\n", while_index);
+        sprintf(buf, "ifeg LABEL_FALSE\ngoto LABEL_TRUE\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     }
     printf("---------------close-----------------\n");
 
+    return strdup(buffer);
+}
+
+char * printWhile(char * relation, char * body) { 
+    char buffer[1000];
+    char tmp[1000];    
+    char buf[100];
+    strcpy(buffer, "");
+    sprintf(buffer, "%sLABEL_TRUE:\n%sgoto LABEL_BEGIN\nLABEL_FALSE:\ngoto EXIT_0\nEXIT_0:\n", relation, body);
     return strdup(buffer);
 }
