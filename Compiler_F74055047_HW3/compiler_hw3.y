@@ -57,7 +57,6 @@ char * allIfStatement(char * body);
 int stack_num = 0;
 int while_index = 0;
 int else_index = 0;
-int else_index1 = 0;
 
 extern int dump_flag;
 extern void yyerror(char * s);
@@ -306,19 +305,21 @@ relation
 if_statement
 	: IF LB if_relation RB block_body ELSE block_body {
         $$ = printIfElse($3, $5, $7);
-        else_index++;
+        else_index--;
     }
     | IF LB if_relation RB block_body ELSE if_statement {
         $$ = printIfElse($3, $5, $7);
+        else_index--;
     }
 	| IF LB if_relation RB block_body {
         $$ = printIF($3, $5);
-        else_index++;
+        else_index--;
     }
 ;
 
 if_relation
     : expression {
+        else_index++;
         $$ = doIfRelational(); clearStatementStack();
     }
 ;
@@ -1530,27 +1531,27 @@ char * doIfRelational()
     }
     // relational
     if (!strcmp(statement_stack[1], "MT")){
-        sprintf(buf, "ifgt THEN_%d\n", else_index1++);
+        sprintf(buf, "ifgt THEN_%d\n", else_index);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "LT")){
-        sprintf(buf, "iflt THEN_%d\n", else_index1++);
+        sprintf(buf, "iflt THEN_%d\n", else_index);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "MTE")){
-        sprintf(buf, "iflme THEN_%d\n", else_index1++);
+        sprintf(buf, "iflme THEN_%d\n", else_index);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "LTE")){
-        sprintf(buf, "ifle THEN_%d\n", else_index1++);
+        sprintf(buf, "ifle THEN_%d\n", else_index);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "EQ")){
-        sprintf(buf, "ifeq THEN_%d\n", else_index1++);
+        sprintf(buf, "ifeq THEN_%d\n", else_index);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "NE")){
-        sprintf(buf, "ifne THEN_%d\n", else_index1++);
+        sprintf(buf, "ifne THEN_%d\n", else_index);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     }

@@ -1,5 +1,5 @@
 void main(){
-	int a = 20;
+	int a = 50;
     if (a == 40){
         print("a is equal to 40");
     }
