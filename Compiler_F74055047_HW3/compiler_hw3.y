@@ -46,6 +46,7 @@ void clearStatementStack();
 char * printStatementStack(char * method);
 int is_global(char * id);
 char * getParamTypes(int scope);
+char * get_attribute(char * attr);
 
 int stack_num = 0;
 
@@ -858,9 +859,16 @@ char * printStatementStack(char * method)
                         switch(id_info->type) {
                             case INT:
                                 if(id_info->scope == 0) {
-                                    sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
-                                    strcpy(tmp, buffer);
-                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                    if(id_info->kind = FUNCTION) {
+                                        char * param = get_attribute(id_info->attribute);
+                                        sprintf(buf, "invokestatic compiler_hw3/%s(%s)I\n", statement_stack[i], param);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);
+                                    } else {
+                                        sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);                                
+                                    }
                                 } else {
                                     sprintf(buf, "iload %d\n", id_info->reg_num);
                                     strcpy(tmp, buffer);
@@ -1104,4 +1112,28 @@ char * printStatementStack(char * method)
         printf("---------------close-----------------\n");    
     }
     return strdup(buffer);
+}
+
+char * get_attribute(char * attr)
+{
+    char * pch;
+    char attribute[100];
+    char sp_attr[10];
+    strcpy(sp_attr, "");
+    strcpy(attribute, attr);
+    pch = strtok (attribute," ,.-");
+    while (pch != NULL)
+    {
+        if(!strcmp(pch,"int")) {
+            strcat(sp_attr, "I");               
+        } else if(!strcmp(pch,"float")) {
+            strcat(sp_attr, "F");
+        } else if(!strcmp(pch,"bool")) {
+            strcat(sp_attr, "Z");
+        } else if(!strcmp(pch,"string")) {
+            strcat(sp_attr, "Ljava/lang/String;");
+        }
+        pch = strtok (NULL, " ,.-");
+    }
+    return strdup(sp_attr);
 }
