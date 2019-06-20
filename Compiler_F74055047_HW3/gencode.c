@@ -46,7 +46,7 @@ void genVarDeclrVal(char * id, int type, char * value)
                 int i = (int)f;
                 fprintf(file, ".field public static %s I = %d\n", id, i);
             } else {
-                fprintf(file, ".field public static %s I = %d\n", id, value);                
+                fprintf(file, ".field public static %s I = %s\n", id, value);                
             }
             break;
         case BOOL:

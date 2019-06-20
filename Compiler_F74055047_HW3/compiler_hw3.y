@@ -891,7 +891,7 @@ char * printStatementStack(char * method)
                         switch(id_info->type) {
                             case INT:
                                 if(id_info->scope == 0) {
-                                    if(id_info->kind = FUNCTION) {
+                                    if(id_info->kind == FUNCTION) {
                                         char * param = get_attribute(id_info->attribute);
                                         sprintf(buf, "invokestatic compiler_hw3/%s(%s)I\n", statement_stack[i], param);
                                         strcpy(tmp, buffer);
@@ -909,7 +909,7 @@ char * printStatementStack(char * method)
                                 break;
                             case BOOL:
                                 if(id_info->scope == 0) {
-                                    if(id_info->kind = FUNCTION) {
+                                    if(id_info->kind == FUNCTION) {
                                         char * param = get_attribute(id_info->attribute);
                                         sprintf(buf, "invokestatic compiler_hw3/%s(%s)Z\n", statement_stack[i], param);
                                         strcpy(tmp, buffer);
