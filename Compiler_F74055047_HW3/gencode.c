@@ -118,15 +118,15 @@ char * genPrintStrConst(char * value)
     strcpy(tmp, "");
     strcpy(buf, "");
 
-    sprintf(buffer, "ldc \"%s\"\n", value);
+    sprintf(buf, "ldc \"%s\"\n", value);
     strcpy(tmp, buffer);
     sprintf(buffer, "%s%s", tmp, buf);
-    sprintf(buffer, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+    sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
         "swap\n"
     );
     strcpy(tmp, buffer);
     sprintf(buffer, "%s%s", tmp, buf);
-    sprintf(buffer, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+    sprintf(buf, "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
     strcpy(tmp, buffer);
     sprintf(buffer, "%s%s", tmp, buf);
     return strdup(buffer);

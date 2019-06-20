@@ -6,7 +6,7 @@ void main(){
     else if (a > 40){
         print("a is larger than 40");
     }
-     else{
+    else{
         print(666);
     }
 
