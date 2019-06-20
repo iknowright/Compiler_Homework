@@ -80,29 +80,29 @@ char *  genPrintConst(char * value)
     }
     if(!is_float) {
         printf("it is a integer number %d\n", atoi(value));                
-        sprintf(buffer, "ldc %s\n", value);
+        sprintf(buf, "ldc %s\n", value);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
-        sprintf(buffer, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+        sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
             "swap\n"
         );
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
-        sprintf(buffer, "invokevirtual java/io/PrintStream/println(I)V\n");
+        sprintf(buf, "invokevirtual java/io/PrintStream/println(I)V\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else {
         printf("it is a float number %f\n", atof(value));                
         printf("%s\n", value);
-        sprintf(buffer, "ldc %s\n", value);
+        sprintf(buf, "ldc %s\n", value);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
-        sprintf(buffer, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
+        sprintf(buf, "getstatic java/lang/System/out Ljava/io/PrintStream;\n"
             "swap\n"
         );
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
-        sprintf(buffer, "invokevirtual java/io/PrintStream/println(F)V\n");
+        sprintf(buf, "invokevirtual java/io/PrintStream/println(F)V\n");
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     }

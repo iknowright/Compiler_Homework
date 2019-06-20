@@ -48,10 +48,15 @@ int is_global(char * id);
 char * getParamTypes(int scope);
 char * get_attribute(char * attr);
 char * doRelational();
+char * doIfRelational();
 char * printWhile(char * relation, char * body);
+char * printIF(char * body, char * clause);
+char * printIfElse(char * body, char * clause1, char * clause2);
+char * allIfStatement(char * body);
 
 int stack_num = 0;
 int while_index = 0;
+int else_index = 0;
 
 extern int dump_flag;
 extern void yyerror(char * s);
@@ -108,7 +113,7 @@ char statement_stack[100][100];
 %type <string> parameter_list parameter
 %type <string> constant assignment_operator
 %type <string> stat stats printf_statement block_body expression_statement return_statement relation
-%type <string> while_statement
+%type <string> while_statement if_statement if_relation
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -160,7 +165,7 @@ stats
 
 stat
     : while_statement { $$ = $1; clearStatementStack();}
-    | if_statement { $$ = strdup(""); clearStatementStack();}
+    | if_statement { $$ = allIfStatement($1); clearStatementStack();}
     | variable_declaration { $$=printStatementStack("assignment"); clearStatementStack(); }
     | printf_statement { $$ = $1; }
     | expression_statement { $$=$1; clearStatementStack(); }
@@ -298,9 +303,21 @@ relation
 ;
 
 if_statement
-	: IF LB expression RB block_body ELSE block_body
-    | IF LB expression RB block_body ELSE if_statement
-	| IF LB expression RB block_body
+	: IF LB if_relation RB block_body ELSE block_body {
+        $$ = printIfElse($3, $5, $7);
+    }
+    | IF LB if_relation RB block_body ELSE if_statement {
+        $$ = printIfElse($3, $5, $7);
+    }
+	| IF LB if_relation RB block_body {
+        $$ = printIF($3, $5);       
+    }
+;
+
+if_relation
+    : expression {
+        $$ = doIfRelational(); clearStatementStack();
+    }
 ;
 
 block_body
@@ -1378,5 +1395,192 @@ char * printWhile(char * relation, char * body) {
     char buf[100];
     strcpy(buffer, "");
     sprintf(buffer, "%sLABEL_TRUE:\n%sgoto LABEL_BEGIN\nLABEL_FALSE:\ngoto EXIT_0\nEXIT_0:\n", relation, body);
+    return strdup(buffer);
+}
+
+char * doIfRelational()
+{
+    char buffer[1000];
+    char tmp[1000];    
+    char buf[100];
+    strcpy(buffer, "");
+    strcpy(tmp, "");   
+    printf("---------------open-----------------\n");      
+    printf("Scope %d\n\n", scope);
+    int float_flag = 0;
+    Node * id_info; 
+    for(int i = 0; i < stack_num; i++) {
+        printf("%s ", statement_stack[i]);
+    }
+    printf("\n\nStack size %d\n", stack_num);
+    printf("Semantic flag %d\n", semantic_flag);
+    for(int i = 0; i < stack_num; i++) {
+        if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
+            if(id_info->type == FLOAT) {
+                float_flag = 1;
+                break;
+            }          
+        } else {           
+            for(int j  = 0; j < strlen(statement_stack[0]); j++) {
+                if(statement_stack[0][j] == '.') {
+                    float_flag = 1;
+                    break;
+                }
+            }                               
+        }
+    }
+    printf("Float flag %d\n", float_flag);
+    // Former
+    if(float_flag) {
+        if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
+            if(id_info->type == FLOAT) {
+                sprintf(buf, "fload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else if(id_info->type == INT){
+                sprintf(buf, "i2f\nfload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        } else {
+            int flag = 0;
+            for(int j  = 0; j < strlen(statement_stack[0]); j++) {
+                if(statement_stack[0][j] == '.') {
+                    flag = 1;
+                    break;
+                }
+            }
+            if(flag) {
+                sprintf(buf, "ldc %s\n", statement_stack[0]);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else {
+                sprintf(buf, "ldc %s\ni2f\n", statement_stack[0]);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        }
+    } else {
+        if((id_info = get_id_info(scope, statement_stack[0])) != NULL) {
+            if(id_info->type == INT){
+                sprintf(buf, "iload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        } else {
+            sprintf(buf, "ldc\n", statement_stack[0]);
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+        }
+    }
+    if(float_flag) {
+        if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
+            if(id_info->type == FLOAT) {
+                sprintf(buf, "fload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else if(id_info->type == INT){
+                sprintf(buf, "i2f\nfload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        } else {
+            int flag = 0;
+            for(int j  = 0; j < strlen(statement_stack[2]); j++) {
+                if(statement_stack[2][j] == '.') {
+                    flag = 1;
+                    break;
+                }
+            }
+            if(flag) {
+                sprintf(buf, "ldc %s\n", statement_stack[2]);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            } else {
+                sprintf(buf, "ldc %s\ni2f\n", statement_stack[2]);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        }
+    } else {
+        if((id_info = get_id_info(scope, statement_stack[2])) != NULL) {
+            if(id_info->type == INT){
+                sprintf(buf, "iload %d\n", id_info->reg_num);
+                strcpy(tmp, buffer);
+                sprintf(buffer, "%s%s", tmp, buf);
+            }
+        } else {
+            sprintf(buf, "ldc %s\n", statement_stack[2]);
+            strcpy(tmp, buffer);
+            sprintf(buffer, "%s%s", tmp, buf);
+        }
+    }
+    // substrate
+    if(float_flag) {
+        sprintf(buf, "fsub\n", statement_stack[0]);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    } else {
+        sprintf(buf, "isub\n", statement_stack[0]);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    }
+    // relational
+    if (!strcmp(statement_stack[1], "MT")){
+        sprintf(buf, "ifle ELSE_%d\n", else_index);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    } else if (!strcmp(statement_stack[1], "LT")){
+        sprintf(buf, "ifge ELSE_%d\n", else_index);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    } else if (!strcmp(statement_stack[1], "MTE")){
+        sprintf(buf, "iflt ELSE_%d\n", else_index);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    } else if (!strcmp(statement_stack[1], "LTE")){
+        sprintf(buf, "ifgt ELSE_%d\n", else_index);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    } else if (!strcmp(statement_stack[1], "EQ")){
+        sprintf(buf, "ifne ELSE_%d\n", else_index);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    } else if (!strcmp(statement_stack[1], "NE")){
+        sprintf(buf, "ifeg ELSE_%d\n", else_index);
+        strcpy(tmp, buffer);
+        sprintf(buffer, "%s%s", tmp, buf);
+    }
+    printf("---------------close-----------------\n");
+
+    return strdup(buffer);
+}
+
+
+char * printIF(char * relation, char * clause)
+{
+    char buffer[1000];
+    char tmp[1000];    
+    char buf[100];
+    strcpy(buffer, "");
+    sprintf(buffer, "%s%sgoto EXIT_0\nELSE_%d:\ngoto EXIT_0\n", relation, clause, else_index);
+    return strdup(buffer);
+}
+
+char * printIfElse(char * relation, char * clause1, char * clause2)
+{
+    char buffer[1000]; 
+    char buf[100];
+    strcpy(buffer, "");
+    sprintf(buffer, "%s%sgoto EXIT_0\nELSE_%d:\n%sgoto EXIT_0\n", relation, clause1, else_index, clause2);   
+    return strdup(buffer);
+}
+
+char * allIfStatement(char * body)
+{
+    char buffer[1000];    
+    char buf[100];
+    strcpy(buffer, "");
+    sprintf(buffer, "%sEXIT_0:\n", body);    
     return strdup(buffer);
 }
