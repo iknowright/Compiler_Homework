@@ -189,10 +189,10 @@ argument_list
 
 expression_statement
     : assign_statement { 
-        $$=printStatementStack("assignment");
+        $$=printStatementStack("assignment");clearStatementStack();
     }
     | expression SEMICOLON {
-            // $$=printStatementStack("expression");
+            $$=printStatementStack("expression"); clearStatementStack();
         }
     | SEMICOLON { $$=strdup(""); }
 ;
@@ -1016,6 +1016,17 @@ char * printStatementStack(char * method)
                                     sprintf(buffer, "%s%s", tmp, buf);
                                 }
                                 break;
+                            case VOID:
+                                if(id_info->kind = FUNCTION) {
+                                    char * param = get_attribute(id_info->attribute);
+                                    sprintf(buf, "invokestatic compiler_hw3/%s(%s)I\n", statement_stack[i], param);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);
+                                } else {
+                                    sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                }
                             default:
                                 break;
                         }
@@ -1078,6 +1089,17 @@ char * printStatementStack(char * method)
                                     sprintf(buffer, "%s%s", tmp, buf);
                                 }
                                 break;
+                            case VOID:
+                                if(id_info->kind = FUNCTION) {
+                                    char * param = get_attribute(id_info->attribute);
+                                    sprintf(buf, "invokestatic compiler_hw3/%s(%s)V\n", statement_stack[i], param);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);
+                                } else {
+                                    sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                }
                             default:
                                 break;
                         }
