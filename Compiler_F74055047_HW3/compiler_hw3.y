@@ -57,6 +57,7 @@ char * allIfStatement(char * body);
 int stack_num = 0;
 int while_index = 0;
 int else_index = 0;
+int else_index1 = 0;
 
 extern int dump_flag;
 extern void yyerror(char * s);
@@ -305,12 +306,14 @@ relation
 if_statement
 	: IF LB if_relation RB block_body ELSE block_body {
         $$ = printIfElse($3, $5, $7);
+        else_index++;
     }
     | IF LB if_relation RB block_body ELSE if_statement {
         $$ = printIfElse($3, $5, $7);
     }
 	| IF LB if_relation RB block_body {
-        $$ = printIF($3, $5);       
+        $$ = printIF($3, $5);
+        else_index++;
     }
 ;
 
@@ -1527,27 +1530,27 @@ char * doIfRelational()
     }
     // relational
     if (!strcmp(statement_stack[1], "MT")){
-        sprintf(buf, "ifle ELSE_%d\n", else_index);
+        sprintf(buf, "ifgt THEN_%d\n", else_index1++);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "LT")){
-        sprintf(buf, "ifge ELSE_%d\n", else_index);
+        sprintf(buf, "iflt THEN_%d\n", else_index1++);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "MTE")){
-        sprintf(buf, "iflt ELSE_%d\n", else_index);
+        sprintf(buf, "iflme THEN_%d\n", else_index1++);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "LTE")){
-        sprintf(buf, "ifgt ELSE_%d\n", else_index);
+        sprintf(buf, "ifle THEN_%d\n", else_index1++);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "EQ")){
-        sprintf(buf, "ifne ELSE_%d\n", else_index);
+        sprintf(buf, "ifeq THEN_%d\n", else_index1++);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     } else if (!strcmp(statement_stack[1], "NE")){
-        sprintf(buf, "ifeg ELSE_%d\n", else_index);
+        sprintf(buf, "ifne THEN_%d\n", else_index1++);
         strcpy(tmp, buffer);
         sprintf(buffer, "%s%s", tmp, buf);
     }
@@ -1563,7 +1566,8 @@ char * printIF(char * relation, char * clause)
     char tmp[1000];    
     char buf[100];
     strcpy(buffer, "");
-    sprintf(buffer, "%s%sgoto EXIT_0\nELSE_%d:\ngoto EXIT_0\n", relation, clause, else_index);
+    sprintf(buffer, "%sgoto EXIT_0\n%s", relation, clause);
+    else_index++;
     return strdup(buffer);
 }
 
@@ -1572,7 +1576,7 @@ char * printIfElse(char * relation, char * clause1, char * clause2)
     char buffer[1000]; 
     char buf[100];
     strcpy(buffer, "");
-    sprintf(buffer, "%s%sgoto EXIT_0\nELSE_%d:\n%sgoto EXIT_0\n", relation, clause1, else_index, clause2);   
+    sprintf(buffer, "%s%sgoto EXIT_0\nTHEN_%d:\n%s", relation, clause2, else_index, clause1);
     return strdup(buffer);
 }
 
@@ -1581,6 +1585,6 @@ char * allIfStatement(char * body)
     char buffer[1000];    
     char buf[100];
     strcpy(buffer, "");
-    sprintf(buffer, "%sEXIT_0:\n", body);    
+    sprintf(buffer, "%sEXIT_0:\n", body);      
     return strdup(buffer);
 }
