@@ -43,7 +43,7 @@ void custom_yyerror(char *s);
 int lookup_reg(int stop_scope);
 Node * get_id_info(int curr_scope, char * id);
 void clearStatementStack();
-char * printStatementStack();
+char * printStatementStack(char * method);
 int is_global(char * id);
 char * getParamTypes(int scope);
 
@@ -106,7 +106,7 @@ char statement_stack[100][100];
 // %type <string> multiplicative_expression  additive_expression relational_expression logical_and_expression logical_or_expression assignment_expression expression
 // %type <string> unary_operator
 %type <string> constant assignment_operator
-%type <string> stat stats printf_statement block_body
+%type <string> stat stats printf_statement block_body expression_statement
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -120,8 +120,8 @@ program
 ;
 
 program_body
-    : function_declaration { printStatementStack(); clearStatementStack(); }
-    | variable_declaration { printStatementStack(); clearStatementStack(); }
+    : function_declaration { clearStatementStack(); }
+    | variable_declaration { clearStatementStack(); }
     | function
 ;
 
@@ -159,10 +159,10 @@ stats
 stat
     : while_statement { $$ = strdup(""); clearStatementStack();}
     | if_statement { $$ = strdup(""); clearStatementStack();}
-    | variable_declaration { $$=printStatementStack(); clearStatementStack(); }
+    | variable_declaration { $$=printStatementStack("assignment"); clearStatementStack(); }
     | printf_statement { $$ = $1; }
-    | expression_statement { $$=printStatementStack(); clearStatementStack(); }
-    | return_statement { $$ = strdup(""); clearStatementStack();}
+    | expression_statement { $$=$1; clearStatementStack(); }
+    | return_statement { $$=printStatementStack("expression"); clearStatementStack();}
 ;
 
 function_call
@@ -185,9 +185,13 @@ argument_list
 ;
 
 expression_statement
-    : assign_statement
-    | expression SEMICOLON
-    | SEMICOLON
+    : assign_statement { 
+        $$=printStatementStack("assignment");
+    }
+    | expression SEMICOLON {
+            $$=printStatementStack("expression");
+        }
+    | SEMICOLON { $$=strdup(""); }
 ;
 
 assign_statement
@@ -203,7 +207,9 @@ assign_statement
 ;
 
 return_statement
-    : RETURN expression SEMICOLON
+    : RETURN expression SEMICOLON {
+        
+    }
 
 printf_statement
     : PRINT LB QUOTA STR_CONST QUOTA RB SEMICOLON { $$ = genPrintStrConst($4); }
@@ -731,7 +737,7 @@ int is_global(char * id) {
     return flag;
 }
 
-char * printStatementStack()
+char * printStatementStack(char * method)
 {
     char buffer[1000];
     char tmp[1000];    
@@ -739,7 +745,8 @@ char * printStatementStack()
     strcpy(buffer, "");
     strcpy(tmp, "");
     if(scope && stack_num > 0 && !semantic_flag) {     
-        printf("--------------------------------\n");
+        printf("---------------open-----------------\n");
+        printf("%s\n", method);        
         printf("Scope %d\n\n", scope);
         int float_flag = 0;
         Node * id_info;    
@@ -761,216 +768,220 @@ char * printStatementStack()
                     sprintf(buffer, "ldc \"\"\nastore %d\n", id_info->reg_num);
                 }
             }
+            printf("---------------close-----------------\n");            
             return strdup(buffer);
         }
-        for(int i = 0; i < stack_num - 2; i++) {
-            if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
-                if(id_info->type == FLOAT) {
-                    float_flag = 1;
-                    break;
-                }          
-            } else {           
-                for(int j  = 0; j < strlen(statement_stack[i]); j++) {
-                    if(statement_stack[i][j] == '.') {
+
+        if(stack_num >= 3 && !strcmp(method, "assignment")){
+            for(int i = 0; i < stack_num - 2; i++) {
+                if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                    if(id_info->type == FLOAT) {
                         float_flag = 1;
                         break;
-                    }
-                }                               
-            }
-        }
-        printf("Float flag %d\n", float_flag);
-        for(int i = 0; i < stack_num - 2; i++) {                 
-            if(float_flag) {
-                if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
-                    switch(id_info->type) {
-                        case INT:
-                            if(id_info->scope == 0) {
-                                sprintf(buf, "getstatic compiler_hw3/%s I\ni2f\n", statement_stack[i]);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);                                
-                            } else {
-                                sprintf(buf, "iload %d\ni2f\n", id_info->reg_num);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);
-                            }
-                            break;                       
-                        case FLOAT:
-                            if(id_info->scope == 0) {
-                                sprintf(buf, "getstatic compiler_hw3/%s F\n", statement_stack[i]);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);                                
-                            } else {
-                                sprintf(buf, "fload %d\n", id_info->reg_num);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                } else if (!strcmp(statement_stack[i], "ADD")){
-                    sprintf(buf, "fadd\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "SUB")){
-                    sprintf(buf, "fsub\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "MUL")){
-                    sprintf(buf, "fmul\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "DIV")){
-                    sprintf(buf, "fdiv\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else {
-                    int is_float = 0;
+                    }          
+                } else {           
                     for(int j  = 0; j < strlen(statement_stack[i]); j++) {
                         if(statement_stack[i][j] == '.') {
-                            is_float = 1;
+                            float_flag = 1;
                             break;
                         }
-                    }
-                    if(is_float) {
-                        sprintf(buf, "ldc %s\n", statement_stack[i]);
+                    }                               
+                }
+            }
+            printf("Float flag %d\n", float_flag);
+            for(int i = 0; i < stack_num - 2; i++) {                 
+                if(float_flag) {
+                    if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                        switch(id_info->type) {
+                            case INT:
+                                if(id_info->scope == 0) {
+                                    sprintf(buf, "getstatic compiler_hw3/%s I\ni2f\n", statement_stack[i]);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                } else {
+                                    sprintf(buf, "iload %d\ni2f\n", id_info->reg_num);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);
+                                }
+                                break;                       
+                            case FLOAT:
+                                if(id_info->scope == 0) {
+                                    sprintf(buf, "getstatic compiler_hw3/%s F\n", statement_stack[i]);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                } else {
+                                    sprintf(buf, "fload %d\n", id_info->reg_num);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    } else if (!strcmp(statement_stack[i], "ADD")){
+                        sprintf(buf, "fadd\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "SUB")){
+                        sprintf(buf, "fsub\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "MUL")){
+                        sprintf(buf, "fmul\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "DIV")){
+                        sprintf(buf, "fdiv\n");
                         strcpy(tmp, buffer);
                         sprintf(buffer, "%s%s", tmp, buf);
                     } else {
-                        sprintf(buf, "ldc %s\ni2f\n", statement_stack[i]);
-                        strcpy(tmp, buffer);
-                        sprintf(buffer, "%s%s", tmp, buf);                                                                                      
-                    }
-                }
-            } else {
-                if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
-                    switch(id_info->type) {
-                        case INT:
-                            if(id_info->scope == 0) {
-                                sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);                                
-                            } else {
-                                sprintf(buf, "iload %d\n", id_info->reg_num);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);
+                        int is_float = 0;
+                        for(int j  = 0; j < strlen(statement_stack[i]); j++) {
+                            if(statement_stack[i][j] == '.') {
+                                is_float = 1;
+                                break;
                             }
-                            break;
-                        case BOOL:
-                            if(id_info->scope == 0) {
-                                sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);                                
-                            } else {
-                                sprintf(buf, "iload %d\n", id_info->reg_num);
-                                strcpy(tmp, buffer);
-                                sprintf(buffer, "%s%s", tmp, buf);
-                            }
-                            break;
-                        default:
-                            break;
+                        }
+                        if(is_float) {
+                            sprintf(buf, "ldc %s\n", statement_stack[i]);
+                            strcpy(tmp, buffer);
+                            sprintf(buffer, "%s%s", tmp, buf);
+                        } else {
+                            sprintf(buf, "ldc %s\ni2f\n", statement_stack[i]);
+                            strcpy(tmp, buffer);
+                            sprintf(buffer, "%s%s", tmp, buf);                                                                                      
+                        }
                     }
-                } else if (!strcmp(statement_stack[i], "ADD")){
-                    sprintf(buf, "iadd\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "SUB")){
-                    sprintf(buf, "isub\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "MUL")){
-                    sprintf(buf, "imul\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "DIV")){
-                    sprintf(buf, "idiv\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if (!strcmp(statement_stack[i], "MOD")){
-                    sprintf(buf, "irem\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
                 } else {
-                    sprintf(buf, "ldc %s\n", statement_stack[i]);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
+                    if((id_info = get_id_info(scope, statement_stack[i])) != NULL) {
+                        switch(id_info->type) {
+                            case INT:
+                                if(id_info->scope == 0) {
+                                    sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                } else {
+                                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);
+                                }
+                                break;
+                            case BOOL:
+                                if(id_info->scope == 0) {
+                                    sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                } else {
+                                    sprintf(buf, "iload %d\n", id_info->reg_num);
+                                    strcpy(tmp, buffer);
+                                    sprintf(buffer, "%s%s", tmp, buf);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    } else if (!strcmp(statement_stack[i], "ADD")){
+                        sprintf(buf, "iadd\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "SUB")){
+                        sprintf(buf, "isub\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "MUL")){
+                        sprintf(buf, "imul\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "DIV")){
+                        sprintf(buf, "idiv\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if (!strcmp(statement_stack[i], "MOD")){
+                        sprintf(buf, "irem\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else {
+                        sprintf(buf, "ldc %s\n", statement_stack[i]);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
+                }
+            }
+            if((id_info = get_id_info(scope, statement_stack[stack_num - 1])) != NULL) {
+                if(id_info->type == STRING) {
+                    if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                        sprintf(buf, "astore %d\n", id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
+                } else if(id_info->type == BOOL) {
+                    if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                        sprintf(buf, "istore %d\n", id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
+                } else if(id_info->type == FLOAT) {
+                    if(!float_flag) {
+                        sprintf(buf, "i2f\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
+                    if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                        sprintf(buf, "fstore %d\n", id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
+                        sprintf(buf, "fstore 30\nfload %d\nfload 30\nfadd\nfstore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
+                        sprintf(buf, "fstore 30\nfload %d\nfload 30\nfsub\nfstore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
+                        sprintf(buf, "fstore 30\nfload %d\nfload 30\nfmul\nfstore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
+                        sprintf(buf, "fstore 30\nfload %d\nfload 30\nfdiv\nfstore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
+                } else if(id_info->type == INT) {
+                    if(float_flag) {
+                        sprintf(buf, "f2i\n");
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
+                    if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
+                        sprintf(buf, "istore %d\n", id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
+                        sprintf(buf, "istore 40\niload %d\niload 40\niadd\nistore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
+                        sprintf(buf, "istore 40\niload %d\niload 40\nisub\nistore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
+                        sprintf(buf, "istore 40\niload %d\niload 40\nimul\nistore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
+                        sprintf(buf, "istore 40\niload %d\niload 40\nidiv\nistore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    } else if(!strcmp(statement_stack[stack_num - 2], "MODASGN")) {
+                        sprintf(buf, "istore 40\niload %d\niload 40\nirem\nistore %d\n", id_info->reg_num, id_info->reg_num);
+                        strcpy(tmp, buffer);
+                        sprintf(buffer, "%s%s", tmp, buf);
+                    }
                 }
             }
         }
-        if((id_info = get_id_info(scope, statement_stack[stack_num - 1])) != NULL) {
-            if(id_info->type == STRING) {
-                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "astore %d\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                }
-            } else if(id_info->type == BOOL) {
-                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                }
-            } else if(id_info->type == FLOAT) {
-                if(!float_flag) {
-                    sprintf(buf, "i2f\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                }
-                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "fstore %d\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
-                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfadd\nfstore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
-                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfsub\nfstore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
-                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfmul\nfstore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
-                    sprintf(buf, "fstore 30\nfload %d\nfload 30\nfdiv\nfstore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                }
-            } else if(id_info->type == INT) {
-                if(float_flag) {
-                    sprintf(buf, "f2i\n");
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                }
-                if(!strcmp(statement_stack[stack_num - 2], "ASGN")) {
-                    sprintf(buf, "istore %d\n", id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "ADDASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\niadd\nistore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "SUBASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\nisub\nistore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "MULASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\nimul\nistore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "DIVASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\nidiv\nistore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                } else if(!strcmp(statement_stack[stack_num - 2], "MODASGN")) {
-                    sprintf(buf, "istore 40\niload %d\niload 40\nirem\nistore %d\n", id_info->reg_num, id_info->reg_num);
-                    strcpy(tmp, buffer);
-                    sprintf(buffer, "%s%s", tmp, buf);
-                }
-            }
-        }
-        printf("--------------------------------\n");    
+        printf("---------------close-----------------\n");    
     }
     return strdup(buffer);
 }
