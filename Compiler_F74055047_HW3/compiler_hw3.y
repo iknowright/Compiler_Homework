@@ -877,9 +877,16 @@ char * printStatementStack(char * method)
                                 break;
                             case BOOL:
                                 if(id_info->scope == 0) {
-                                    sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
-                                    strcpy(tmp, buffer);
-                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                    if(id_info->kind = FUNCTION) {
+                                        char * param = get_attribute(id_info->attribute);
+                                        sprintf(buf, "invokestatic compiler_hw3/%s(%s)Z\n", statement_stack[i], param);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);
+                                    } else {
+                                        sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);                                
+                                    }                                
                                 } else {
                                     sprintf(buf, "iload %d\n", id_info->reg_num);
                                     strcpy(tmp, buffer);
@@ -1069,9 +1076,16 @@ char * printStatementStack(char * method)
                         switch(id_info->type) {
                             case INT:
                                 if(id_info->scope == 0) {
-                                    sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
-                                    strcpy(tmp, buffer);
-                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                        if(id_info->kind = FUNCTION) {
+                                        char * param = get_attribute(id_info->attribute);
+                                        sprintf(buf, "invokestatic compiler_hw3/%s(%s)I\n", statement_stack[i], param);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);
+                                    } else {
+                                        sprintf(buf, "getstatic compiler_hw3/%s I\n", statement_stack[i]);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);                                
+                                    }                                
                                 } else {
                                     sprintf(buf, "iload %d\n", id_info->reg_num);
                                     strcpy(tmp, buffer);
@@ -1080,9 +1094,16 @@ char * printStatementStack(char * method)
                                 break;
                             case BOOL:
                                 if(id_info->scope == 0) {
-                                    sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
-                                    strcpy(tmp, buffer);
-                                    sprintf(buffer, "%s%s", tmp, buf);                                
+                                    if(id_info->kind = FUNCTION) {
+                                        char * param = get_attribute(id_info->attribute);
+                                        sprintf(buf, "invokestatic compiler_hw3/%s(%s)Z\n", statement_stack[i], param);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);
+                                    } else {
+                                        sprintf(buf, "getstatic compiler_hw3/%s Z\n", statement_stack[i]);
+                                        strcpy(tmp, buffer);
+                                        sprintf(buffer, "%s%s", tmp, buf);                                
+                                    }                          
                                 } else {
                                     sprintf(buf, "iload %d\n", id_info->reg_num);
                                     strcpy(tmp, buffer);
